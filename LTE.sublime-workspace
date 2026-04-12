@@ -1,0 +1,713 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"q",
+				"QLineEdit"
+			],
+			[
+				"textcha",
+				"currentTextChanged"
+			],
+			[
+				"perman",
+				"insertPermanentWidget"
+			],
+			[
+				"mess",
+				"showMessage"
+			],
+			[
+				"text",
+				"textChanged"
+			],
+			[
+				"convert_to",
+				"convert_to_liters"
+			],
+			[
+				"setSiz",
+				"setFixedSize"
+			],
+			[
+				"title",
+				"setWindowTitle"
+			],
+			[
+				"QSize",
+				"QSizePolicy"
+			],
+			[
+				"siz",
+				"sizePolicy"
+			],
+			[
+				"align",
+				"setAlignment"
+			],
+			[
+				"curr",
+				"currentItem"
+			],
+			[
+				"QTe",
+				"QTextEdit"
+			],
+			[
+				"setW",
+				"setWindowTitle"
+			],
+			[
+				"set",
+				"setText"
+			],
+			[
+				"QBu",
+				"QPushButton"
+			],
+			[
+				"windowTitle",
+				"windowTitleChanged"
+			],
+			[
+				"r",
+				"random"
+			],
+			[
+				"c",
+				"chdir"
+			],
+			[
+				"a",
+				"acosh"
+			],
+			[
+				"recipes",
+				"recipes_dropdown"
+			],
+			[
+				"save_",
+				"save_and_quit_frame"
+			],
+			[
+				"scalin",
+				"scaling_factor"
+			],
+			[
+				"scal",
+				"scaling_factor"
+			],
+			[
+				"f",
+				"for"
+			],
+			[
+				"enroll",
+				"enroll_in_course"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "simulation/simulation.py",
+			"settings":
+			{
+				"buffer_size": 14050,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			},
+			"undo_stack":
+			[
+				[
+					5,
+					2,
+					"left_delete",
+					null,
+					"AgAAAM0AAAAAAAAAzQAAAAAAAABMAAAAaG9tZS9hbGV4L2dpdGh1Yi9BZ2VudC1CYXNlZC1TaW11bGF0aW9uLU1vZGVsL0FnZW50LUJhc2VkIFNpbXVsYXRpb24vYmluL3NpbcwAAAAAAAAAzAAAAAAAAAABAAAALw",
+					"BwAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAGQEAAAAAAADNAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					6,
+					1,
+					"paste",
+					null,
+					"AQAAAMwAAAAAAAAAFAEAAAAAAAAAAAAA",
+					"BwAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAzAAAAAAAAADMAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					9,
+					1,
+					"insert",
+					{
+						"characters": "\\"
+					},
+					"AQAAAM4AAAAAAAAAzwAAAAAAAAAAAAAA",
+					"BwAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAzgAAAAAAAADOAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					11,
+					1,
+					"insert",
+					{
+						"characters": "\\"
+					},
+					"AQAAANUAAAAAAAAA1gAAAAAAAAAAAAAA",
+					"BwAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAA1QAAAAAAAADVAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					14,
+					1,
+					"insert",
+					{
+						"characters": "\\"
+					},
+					"AQAAAN8AAAAAAAAA4AAAAAAAAAAAAAAA",
+					"BwAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAA3wAAAAAAAADfAAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					17,
+					1,
+					"insert",
+					{
+						"characters": "\\"
+					},
+					"AQAAAP0AAAAAAAAA/gAAAAAAAAAAAAAA",
+					"BwAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAA/QAAAAAAAAD9AAAAAAAAAAAAAAAAAPC/"
+				],
+				[
+					19,
+					1,
+					"insert",
+					{
+						"characters": "\\"
+					},
+					"AQAAABUBAAAAAAAAFgEAAAAAAAAAAAAA",
+					"BwAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPC/AAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8L8AAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwvwAAAAABAAAAFQEAAAAAAAAVAQAAAAAAAAAAAAAAAPC/"
+				]
+			]
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"lsp",
+				"LSP: Troubleshoot Server"
+			],
+			[
+				"install package",
+				"Package Control: Install Package"
+			],
+			[
+				"package control: list",
+				"Package Control: List Packages"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"package setting",
+				"Preferences: Package Control Settings"
+			],
+			[
+				"package sett",
+				"Preferences: Package Control Settings"
+			],
+			[
+				"ui",
+				"UI: Select Color Scheme"
+			],
+			[
+				"install packa",
+				"Package Control: Install Package"
+			],
+			[
+				"key bind",
+				"Preferences: Key Bindings"
+			],
+			[
+				"view package",
+				"View Package File"
+			],
+			[
+				"color sche",
+				"UI: Select Color Scheme"
+			],
+			[
+				"lsp: ",
+				"LSP-pyright: Create Pyright Configuration File"
+			],
+			[
+				"key",
+				"Preferences: Key Bindings"
+			],
+			[
+				"keyb",
+				"Preferences: Key Bindings"
+			],
+			[
+				"color sch",
+				"UI: Select Color Scheme"
+			],
+			[
+				"package",
+				"View Package File"
+			],
+			[
+				"view",
+				"View Package File"
+			],
+			[
+				"color schem",
+				"UI: Select Color Scheme"
+			],
+			[
+				"ui color",
+				"UI: Select Color Scheme"
+			],
+			[
+				"enable",
+				"LSP: Enable Language Server Globally"
+			],
+			[
+				"disable",
+				"LSP: Disable Language Server in Project"
+			],
+			[
+				"color s",
+				"UI: Select Color Scheme"
+			],
+			[
+				"color",
+				"Code Folding: Fold Tag Attributes"
+			],
+			[
+				"pyright",
+				"LSP-pyright: Create Pyright Configuration File"
+			],
+			[
+				"view packa",
+				"View Package File"
+			],
+			[
+				"view pa",
+				"View Package File"
+			],
+			[
+				"color scheme",
+				"UI: Select Color Scheme"
+			],
+			[
+				"build",
+				"Build: New Build System"
+			],
+			[
+				"keybindings",
+				"Preferences: Key Bindings"
+			],
+			[
+				"preferences",
+				"Preferences: Settings"
+			],
+			[
+				"preference",
+				"Preferences: Settings"
+			],
+			[
+				"prefere",
+				"Preferences: Settings"
+			],
+			[
+				"view package file",
+				"View Package File"
+			],
+			[
+				"start",
+				"Debugger: Start (no debug)"
+			],
+			[
+				"lsp settings",
+				"Preferences: LSP Settings"
+			],
+			[
+				"diagnostic",
+				"LSP: Toggle Diagnostics Panel"
+			],
+			[
+				"debugg",
+				"Debugger: Open"
+			],
+			[
+				"debugger",
+				"Debugger: Open"
+			],
+			[
+				"deb",
+				"Debugger: Open"
+			],
+			[
+				"remove pack",
+				"Package Control: Remove Package"
+			]
+		],
+		"width": 0.0
+	},
+	"console":
+	{
+		"height": 343.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/home/alex/Nextcloud/Personal-Programming/python/Modeling-Tools-Data/models/LTE"
+	],
+	"file_history":
+	[
+		"/home/alex/Nextcloud/Personal-Programming/python/Modeling-Tools/pyrightconfig.json",
+		"/home/alex/Nextcloud/Personal-Programming/python/Modeling-Tools/src/modeling_tools/widgets/GlobalSettingsTab.py",
+		"/home/alex/.cache/sublime-text/Package Storage/LSP-pyright/language-server/node_modules/pyright/dist/typeshed-fallback/stubs/PyYAML/yaml/__init__.pyi",
+		"/home/alex/Downloads/Modeling-Tools-main/src/modeling_tools/tools/creation_tools.py",
+		"/home/alex/Documents/Modeling-Tools/models/demo_for_class/simulation/parameters.py",
+		"/home/alex/Documents/Modeling-Tools/models/demo_for_class/simulation/simulation.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/class demo/card_stuff.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/class demo/demo3.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/class demo/twod_point.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/class demo/output.txt",
+		"/home/alex/Nextcloud/Current-Semester/CS1/class demo/2d_point.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/class demo/help.txt",
+		"/home/alex/Nextcloud/Current-Semester/CS1/class demo/version2.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/class demo/data.txt",
+		"/home/alex/Nextcloud/Current-Semester/CS1/class demo/numbers.txt",
+		"/home/alex/Nextcloud/Current-Semester/CS1/class demo/input.txt",
+		"/home/alex/Nextcloud/Current-Semester/CS1/class demo/demo2.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/class demo/test/demo3.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/class demo/version2_copy.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/class demo/demo.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/class demo/numbers2.txt",
+		"/home/alex/Nextcloud/Current-Semester/CS1/class demo/test/input2.txt",
+		"/home/alex/dotfiles/.config/sublime-text/Packages/User/Package Control.sublime-settings",
+		"/home/alex/dotfiles/.config/sublime-text/Packages/Package Control/Package Control.sublime-settings",
+		"/home/alex/Nextcloud/Personal-Programming/python/CS1/demo.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/temp-again/Modeling-Tools/paths.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/temp-again/Modeling-Tools/main.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/temp-again/Modeling-Tools/testfile.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/temp-again/Modeling-Tools/MainWindow.py",
+		"/home/alex/dotfiles/.config/sublime-text/Packages/User/example_venv.sublime-build",
+		"/home/alex/dotfiles/.config/sublime-text/Packages/User/Python_Terminus.sublime-build",
+		"/home/alex/Nextcloud/Personal-Programming/python/temp-again/Modeling-Tools/models/wright-cross-dual-3-commodity/simulation/parameters.py.bak",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/project/Cookbook-App/main.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/project/Cookbook-App/numbers.txt",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/project/Cookbook-App/temp.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/Cookbook-App/main.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/Falling ROP App/main.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/project/NewRecipesWidget.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/project/ViewRecipesWidget.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/project/recipes_list.yaml",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/project/recipes_list.yml",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/project/main.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/project/testing.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/project/recipes_list.txt",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/project/temp2.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/project/temp.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/main.py",
+		"/usr/lib/python3.13/site-packages/PyQt6/QtWidgets.pyi",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/Darkeum.qss",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/my_gui.ui",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/qt-designer-test2.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/qt-designer-test.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/ounces_to_liters2.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/Classical-Dynamic-Equilibrium-Model-Visualization-Tool/widgets/MatrixEntry.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/Classical-Dynamic-Equilibrium-Model-Visualization-Tool/main.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/examples.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/widgets.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/ounces-to-liters2.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/ounces-to-liters.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/eleven-ten.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/ten-08.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/testing-designer/Combinear.qss",
+		"/home/alex/Nextcloud/Personal-Programming/python/testing-designer/ounces-to-liters2.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/testing-designer/ounces-to-liters1.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/testing-designer/ounces-to-liters.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/testing-designer/ex.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/testing-designer/import_ui.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/testing-designer/statusbar.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/testing-designer/main.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/ex1.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/9-15.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/exceptions.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/newer.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/new.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/ten-06.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/help_file.txt",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/card.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/spooky.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/cookbook-project (better parsing)/lookuptab.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/cookbook-project (better parsing)/recordingtab.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/cookbook-project (better parsing)/recipes.txt",
+		"/home/alex/Nextcloud/Personal-Programming/python/cookbook-project (better parsing)/main.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/cookbook-project (better parsing)/test.txt",
+		"/home/alex/Nextcloud/Personal-Programming/python/cookbook-project (better parsing)/messing_with_json.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/cookbook-project/recordingtab.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/cookbook-project/lookuptab.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/cookbook-project/main.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/cookbook-project/recipes.txt",
+		"/home/alex/Nextcloud/Personal-Programming/python/learning5.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/toolbar.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/layout3.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/grid_layout.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/basic.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/widget_types.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/ian_wright_model/mathstuff.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/ian_wright_model/dynamic_model_redo.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/ian_wright_model/custom_widgets.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/ian_wright_model/init_data.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/ian_wright_model/tk_version.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/learning8.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/tk_version.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/latexlabel.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/dynamic_model_redo.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/learning6.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/learning4.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/learning3.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/learning2.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/layouts1.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/stack_layout.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/nesting_layouts.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/matplotlibstuff.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/layouts2.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/events.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/learning.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/learning7.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/get_help.py",
+		"/home/alex/Nextcloud/Personal-Programming/python/pyrightconfig.json",
+		"/home/alex/venvs/pyqt6/lib/python3.13/site-packages/PyQt6-stubs/QtWidgets.pyi",
+		"/home/alex/Nextcloud/Personal-Programming/python/pyqt6.sublime-project",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/ten-10-2.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/new_program.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/textfile.txt",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/example.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/ten-22.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/ten-10.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/main_thing.py",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/line_counts.txt",
+		"/home/alex/Nextcloud/Current-Semester/CS1/Class-Demo/data.txt"
+	],
+	"find":
+	{
+		"height": 38.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"scrollbar_highlights": true,
+		"show_context": true,
+		"use_buffer2": true,
+		"use_gitignore": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "simulation/simulation.py",
+					"selected": true,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 14050,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								401,
+								401
+							]
+						],
+						"settings":
+						{
+							"auto_complete_triggers":
+							[
+								{
+									"characters": "<",
+									"selector": "text.html, text.xml"
+								},
+								{
+									"rhs_empty": true,
+									"selector": "punctuation.accessor"
+								},
+								{
+									"characters": ".[\"'",
+									"selector": "meta.tag, source - comment - string.quoted.double.block - string.quoted.single.block - string.unquoted.heredoc",
+									"server": "LSP-pyright"
+								}
+							],
+							"line_numbers": true,
+							"lsp_active": true,
+							"lsp_uri": "file:///home/alex/Nextcloud/Personal-Programming/python/Modeling-Tools-Data/models/LTE/simulation/simulation.py",
+							"show_definitions": false,
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true,
+							"vintage_lines.line": 11,
+							"vintage_lines.lines": 357,
+							"vintage_lines.mode": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 81.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"stack_multiselect": false,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 38.0
+	},
+	"input":
+	{
+		"height": 56.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.LSP Log Panel":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"output.diagnostics":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"output.find_results":
+	{
+		"height": 0.0,
+		"history":
+		[
+		]
+	},
+	"pinned_build_system": "Packages/User/Python_pyqt6.sublime-build",
+	"project": "LTE.sublime-project",
+	"replace":
+	{
+		"height": 72.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+		"lsp_show_inlay_hints": false
+	},
+	"show_minimap": false,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 472.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

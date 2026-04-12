@@ -1,0 +1,238 @@
+prices:
+  name: Prices
+  title: Prices
+  projection: 2d
+  axis_visible: true
+  grid_visible: true
+  ticks_visible: true
+  frame_visible: true
+  plots:
+    prices:
+      checkbox_name: Prices
+      toggled: true
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Price of {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: prices
+    values:
+      checkbox_name: Values
+      toggled: true
+      linestyle: dashed
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Value of {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: values
+inventory:
+  name: Inventory
+  projection: 2d
+  axis_visible: true
+  grid_visible: true
+  ticks_visible: true
+  frame_visible: true
+  plots:
+    supply:
+      checkbox_name: Supply
+      toggled: true
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Supply of {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: supply
+    distributor_supply:
+      checkbox_name: Distributor Supply
+      toggled: true
+      linestyle: dotted
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Distributor Supply of {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: accessible_supply
+    average_personal_endowments:
+      checkbox_name: Average Personal Endowments
+      toggled: false
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Average {i} posessed
+      colors: [red, blue, green, purple, orange]
+      traj_key: avg_endowments
+demand:
+  name: Demand
+  projection: 2d
+  axis_visible: true
+  grid_visible: true
+  ticks_visible: true
+  frame_visible: true
+  plots:
+    average_demand:
+      checkbox_name: Average Demand
+      toggled: false
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Average Demand for {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: average_demand
+    average_threshold:
+      checkbox_name: Average Threshold
+      toggled: true
+      linestyle: dotted
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Average Threshold for {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: average_pending_inventories
+income:
+  name: Income
+  projection: 2d
+  axis_visible: true
+  grid_visible: true
+  ticks_visible: true
+  frame_visible: true
+  plots:
+    average_account:
+      checkbox_name: Average Account
+      toggled: true
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      labels: [Average Account]
+      colors: [green]
+      traj_key: avg_account
+      traj_key_x: ''
+  default_lims: [[17.7057, 3220.61], [692.407, 1202.58]]
+graph:
+  name: Dependency Grpah
+  projection: 2d
+  axis_visible: false
+  grid_visible: false
+  ticks_visible: false
+  frame_visible: false
+  plots:
+    dependency_graph:
+      special: discrete_graph
+      checkbox_name: Dependency Graph
+      traj_key: A
+      toggled: true
+      show_weights: true
+      directed: true
+  default_lims: [[-0.736749, 0.855919], [-1.84262, 1.62539]]
+plans:
+  name: Plans
+  title: Plans
+  projection: 2d
+  axis_visible: true
+  grid_visible: true
+  ticks_visible: true
+  frame_visible: true
+  plots:
+    plans_in_progress:
+      checkbox_name: Plans in Progress
+      toggled: true
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Plans in Progress for {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: plans_in_progress
+    quantities_in_production:
+      checkbox_name: Quantities in Production
+      toggled: false
+      linestyle: dashed
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Amount of {i} in production
+      colors: [red, blue, green, purple, orange]
+      traj_key: goods_in_production
+health:
+  name: Health
+  title: Health
+  projection: 2d
+  axis_visible: true
+  grid_visible: true
+  ticks_visible: true
+  frame_visible: true
+  plots:
+    healthy_persons:
+      checkbox_name: Healthy Persons
+      toggled: true
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      labels: [Number of healthy people]
+      colors: [green]
+      traj_key: n_healthy
+    unhealthy_persons:
+      checkbox_name: Unhealthy Persons
+      toggled: true
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      labels: [Unhealthy persons]
+      colors: [red]
+      traj_key: n_unhealthy
+skills:
+  name: Skills
+  title: Proficiency
+  projection: 2d
+  axis_visible: true
+  grid_visible: true
+  ticks_visible: true
+  frame_visible: true
+  plots:
+    average_ability:
+      checkbox_name: Average ability
+      toggled: true
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Average proficiency in ability {i}
+      colors: [red, blue, green]
+      traj_key: average_proficiencies
+employment:
+  name: Employment
+  projection: 2d
+  axis_visible: true
+  grid_visible: true
+  ticks_visible: true
+  frame_visible: true
+  plots:
+    total_employment:
+      checkbox_name: Total Employment
+      toggled: true
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      labels: [Employment]
+      colors: [blue]
+      traj_key: employment
+consumption_initialization:
+  name: Consumption Initialization
+  projection: 2d
+  axis_visible: true
+  grid_visible: true
+  ticks_visible: true
+  frame_visible: true
+  plots:
+    consumption_frequencies:
+      checkbox_name: Consumption Frequencies
+      toggled: true
+      linestyle: dashed
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Mean Consumption Frequency of {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: mean_consumption_frequencies
+    consumption_periods:
+      checkbox_name: Consumption Periods
+      toggled: true
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Conssumption Period for {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: mean_consumption_periods

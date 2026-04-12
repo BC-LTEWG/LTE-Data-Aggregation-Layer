@@ -1,0 +1,6 @@
+presets:
+  default_preset:
+    name: Default
+    desc: ''
+    params: null
+

@@ -1,0 +1,69 @@
+divider1:
+  title: Parameters
+row1:
+  N_S:
+    param_name: N_S
+    tooltip: Number of time steps to simulate
+    control_type: entry_block
+    type: scalar
+    scalar_type: int
+    range: [1, 10000]
+    label: $N_S=$
+  T:
+    param_name: T
+    tooltip: Starting number of hours in the working day
+    control_type: entry_block
+    type: scalar
+    scalar_type: int
+    range: [1, 24]
+    label: T=
+  W:
+    param_name: W
+    tooltip: Starting number of days in the working week
+    control_type: entry_block
+    type: scalar
+    scalar_type: int
+    range: [1, 7]
+    label: $W=$
+row2:
+  N_c:
+    param_name: N_c
+    tooltip: Number of commodities (circulating goods)
+    control_type: entry_block
+    type: scalar
+    scalar_type: int
+    range: [1, 100]
+    label: $N_C=$
+  N_h:
+    param_name: N_h
+    tooltip: Initital number of people
+    control_type: entry_block
+    type: scalar
+    scalar_type: int
+    range: [10, 1000]
+    label: $N_h=$
+row3:
+  m_r:
+    param_name: m_r
+    tooltip: Ratio of products to machines
+    control_type: entry_block
+    type: scalar
+    scalar_type: int
+    range: [1, 10]
+    label: $m_r=$
+  N_p:
+    param_name: N_p
+    tooltip: Starting number of producers
+    control_type: entry_block
+    type: scalar
+    scalar_type: int
+    range: [1, 100]
+    label: $N_p=$
+  N_d:
+    param_name: N_d
+    tooltip: Starting number of distributors
+    control_type: entry_block
+    type: scalar
+    scalar_type: int
+    range: [1, 100]
+    label: $N_d=$
