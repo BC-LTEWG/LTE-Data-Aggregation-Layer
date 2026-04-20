@@ -1,0 +1,7 @@
+# Python cache
+__pycache__/
+*.pyc
+*.txt
+*.jsonl
+test.py
+Agent-Based-Simulation-Model/

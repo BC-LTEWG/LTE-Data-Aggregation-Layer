@@ -67,3 +67,20 @@ row3:
     scalar_type: int
     range: [1, 100]
     label: $N_d=$
+row4:
+  S:
+    param_name: S
+    control_type: entry_block
+    type: scalar
+    scalar_type: float
+    range: [0.0, 1.0]
+    label: $S=$
+    tooltip: Daily chance of getting sick
+  v_ability:
+    param_name: v_ability
+    control_type: entry_block
+    type: scalar
+    scalar_type: float
+    range: [0.0, 1.0]
+    label: $\sigma_a=$
+    tooltip: Person ability standard deviation
