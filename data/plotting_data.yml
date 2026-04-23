@@ -25,7 +25,24 @@ prices:
       label_template: Value of {i}
       colors: [red, blue, green, purple, orange]
       traj_key: values
-  default_lims: [[0.0, 3000.0], [0.0, 0.311507]]
+    average_order_sizes:
+      checkbox_name: Average Order Sizes
+      toggled: false
+      linestyle: dotted
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Average Order Size of {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: order_sizes
+    living_labor_values:
+      checkbox_name: Living Labor Values
+      toggled: false
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Living Labor per Unit for {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: l
 inventory:
   name: Inventory
   projection: 2d
@@ -72,20 +89,20 @@ demand:
   plots:
     average_demand:
       checkbox_name: Average Demand
-      toggled: false
+      toggled: true
       linestyle: solid
       linewidth: 1.5
       markersize: 6.0
       label_template: Average Demand for {i}
       colors: [red, blue, green, purple, orange]
       traj_key: average_demand
-    average_threshold:
-      checkbox_name: Average Threshold
+    average_pending_inventory:
+      checkbox_name: Average Pending Inventory
       toggled: true
       linestyle: dotted
       linewidth: 1.5
       markersize: 6.0
-      label_template: Average Threshold for {i}
+      label_template: Average Pending Inventory for {i}
       colors: [red, blue, green, purple, orange]
       traj_key: average_pending_inventories
 income:
@@ -106,9 +123,8 @@ income:
       colors: [green]
       traj_key: avg_account
       traj_key_x: ''
-  default_lims: [[17.7057, 3220.61], [692.407, 1202.58]]
-graph:
-  name: Dependency Grpah
+dependency_graph:
+  name: Dependency Graph
   projection: 2d
   axis_visible: false
   grid_visible: false
@@ -122,7 +138,6 @@ graph:
       toggled: true
       show_weights: true
       directed: true
-  default_lims: [[-0.736749, 0.855919], [-1.84262, 1.62539]]
 plans:
   name: Plans
   title: Plans
@@ -150,7 +165,15 @@ plans:
       label_template: Amount of {i} in production
       colors: [red, blue, green, purple, orange]
       traj_key: goods_in_production
-  default_lims: [[-120.286, 820.451], [-1.03645, 4.54518]]
+    reorder_attempts:
+      checkbox_name: Reorder Attempts
+      toggled: true
+      linestyle: dotted
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Reorders Placed for {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: reorder_requests
 health:
   name: Health
   title: Health
@@ -213,6 +236,43 @@ employment:
       labels: [Employment]
       colors: [blue]
       traj_key: employment
+    sectoral_employment:
+      checkbox_name: Sectoral Employment
+      toggled: true
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Workers Employed to Produce {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: available_employment_by_sector
+    sectoral_busyness:
+      checkbox_name: Sectoral Busyness
+      toggled: false
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Average Busyness of Workers in Sector {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: sectoral_busyness
+    overall_busyness:
+      checkbox_name: Overall Busyness
+      toggled: true
+      linestyle: dashed
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Societal Busyness
+      colors: ['#ff11d3']
+      traj_key: overall_busyness
+    transfer_requests:
+      checkbox_name: Transfer Requests
+      toggled: true
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Transfer Requests from Sector {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: transfer_requests_by_sector
+      traj_key_x: transfer_requests_by_sector_t
 consumption_initialization:
   name: Consumption Initialization
   projection: 2d
@@ -236,6 +296,6 @@ consumption_initialization:
       linestyle: solid
       linewidth: 1.5
       markersize: 6.0
-      label_template: Conssumption Period for {i}
+      label_template: Consumption Period for {i}
       colors: [red, blue, green, purple, orange]
       traj_key: mean_consumption_periods

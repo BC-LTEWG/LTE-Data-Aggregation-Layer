@@ -12,3 +12,5 @@ class Params:
     N_d: int = 5
     W: int = 5
     T: int = 8
+    S: float = 0.01
+    v_ability: float = 0.05
