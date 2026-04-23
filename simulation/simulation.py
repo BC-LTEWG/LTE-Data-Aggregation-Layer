@@ -8,7 +8,7 @@ from scipy.linalg import inv
 # models.LTE.simulation.parameters
 
 # REPLACE WITH THE FILE PATH TO YOUR OWN BINARY. IF USING WINDOWS, MAKE SURE YOU USE DOUBLE FORWARD SLASHES (e.g. C:\\Users\\...)
-EXE_PATH = "/home/alex/github/Agent-Based-Simulation-Model/Agent-Based Simulation/bin/sim" # sal/me
+EXE_PATH = "/Users/LIMSOKCHEA/Github/Agent-Based-Simulation-Model/Agent-Based Simulation/bin/sim" # sal/me
 # EXE_PATH = "/home/alex/github/another/Agent-Based-Simulation-Model/Agent-Based Simulation/bin/sim" # devin
 
 
@@ -199,7 +199,6 @@ def get_trajectories(params: Params):
         try:
             dic = json.loads(line)
             # if reasonable_logs:
-            #     print(dic, file= f)
             if dic["t"] != 0:
                 break
             id = dic["id"]

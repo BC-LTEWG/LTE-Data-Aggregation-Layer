@@ -25,6 +25,7 @@ prices:
       label_template: Value of {i}
       colors: [red, blue, green, purple, orange]
       traj_key: values
+  default_lims: [[0.0, 3000.0], [0.0, 0.311507]]
 inventory:
   name: Inventory
   projection: 2d
@@ -60,6 +61,7 @@ inventory:
       label_template: Average {i} posessed
       colors: [red, blue, green, purple, orange]
       traj_key: avg_endowments
+  default_lims: [[-82.1897, 2917.81], [-1058.78, 6941.22]]
 demand:
   name: Demand
   projection: 2d
@@ -148,6 +150,7 @@ plans:
       label_template: Amount of {i} in production
       colors: [red, blue, green, purple, orange]
       traj_key: goods_in_production
+  default_lims: [[-120.286, 820.451], [-1.03645, 4.54518]]
 health:
   name: Health
   title: Health
