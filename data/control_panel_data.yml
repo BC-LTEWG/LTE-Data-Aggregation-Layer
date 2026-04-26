@@ -84,3 +84,9 @@ row4:
     range: [0.0, 1.0]
     label: $\sigma_a=$
     tooltip: Person ability standard deviation
+  is_logging:
+    param_name: is_logging
+    control_type: checkbox
+    label: 'Logging: '
+    tooltip: Whether to log data to a file. Automatically vetoed if overseer deems
+      the projected filesize to be unreasonably large.

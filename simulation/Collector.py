@@ -14,7 +14,7 @@ class Collector:
     the simulation into a queue, where it will be safe until ready for processing
     """
     def __init__(self, bin_path: str, args: list = ["-j"]):
-        self.output_queue = queue.Queue()
+        self.output_queue = queue.Queue(maxsize= 10000)
         self.bin_path = bin_path
         self.args = args
 

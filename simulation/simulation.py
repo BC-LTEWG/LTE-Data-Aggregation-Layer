@@ -8,9 +8,12 @@ import json
 from scipy.linalg import inv
 
 # REPLACE WITH THE FILE PATH TO YOUR OWN BINARY. IF USING WINDOWS, MAKE SURE YOU USE DOUBLE FORWARD SLASHES (e.g. C:\\Users\\...)
-EXE_PATH = "/home/alex/github/Agent-Based-Simulation-Model/bin/sim"
-LOG_PATH = "/media/Big-Boy/Nextcloud/Personal-Programming/python/Modeling-Tools-Data/models/LTE/output_log.txt"
-# LOG_PATH = "/home/alex/Nextcloud/Personal-Programming/python/Modeling-Tools-Data/models/LTE/output_log.txt"
+# devin
+EXE_PATH = "/home/alex/github/Labor-Time-Economy-Simulation/bin/sim"
+# me
+# EXE_PATH = "/home/alex/github/temp/Labor-Time-Economy-Simulation/bin/sim"
+# LOG_PATH = "/media/Big-Boy/Nextcloud/Personal-Programming/python/Modeling-Tools-Data/models/LTE-Data-Aggregation-Layer/output_log.txt"
+LOG_PATH = "/home/alex/Nextcloud/Personal-Programming/python/Modeling-Tools-Data/models/LTE-Data-Aggregation-Layer/output_log.txt"
 
 def get_trajectories(params: Params):
     overseer = Overseer(EXE_PATH, params, LOG_PATH)
