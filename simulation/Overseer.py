@@ -262,6 +262,7 @@ class Overseer:
                     overall_busyness = values[1]
                     transfers_available = values[2]
                     self.producers[id]["recent_busyness"] = firm_busyness
+                    self.overall_busyness = overall_busyness
 
                 if label == "accepted_order":
                     pair = list(dic.items())[-1]
@@ -276,6 +277,13 @@ class Overseer:
                         self.transfer_requests_by_sector[i] +=  1
                         if len(self.transfer_requests_by_sector_t) == 0 or self.current_t != self.transfer_requests_by_sector_t[-1]:
                             self.transfer_requests_by_sector_t = np.append(self.transfer_requests_by_sector_t, self.current_t)
+
+                if label == "transfer":
+                    worker_id = id
+                    old_emp = values[0]
+                    new_emp = values[1]
+                    self.producers[old_emp]["employees"] -= 1
+                    self.producers[new_emp]["employees"] += 1
 
             case "Distributor":
                 if label == "inventory_level":
