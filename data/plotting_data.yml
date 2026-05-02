@@ -43,6 +43,7 @@ prices:
       label_template: Living Labor per Unit for {i}
       colors: [red, blue, green, purple, orange]
       traj_key: l
+  default_lims: [[40.5179, 2823.58], [-0.00328699, 0.475306]]
 inventory:
   name: Inventory
   projection: 2d
@@ -78,7 +79,7 @@ inventory:
       label_template: Average {i} posessed
       colors: [red, blue, green, purple, orange]
       traj_key: avg_endowments
-  default_lims: [[-82.1897, 2917.81], [-1058.78, 6941.22]]
+  default_lims: [[14.1319, 2765.82], [-1383.43, 12008.7]]
 demand:
   name: Demand
   projection: 2d
@@ -105,6 +106,43 @@ demand:
       label_template: Average Pending Inventory for {i}
       colors: [red, blue, green, purple, orange]
       traj_key: average_pending_inventories
+    pending_inventory_producer:
+      checkbox_name: Pending Inventory (Producer)
+      toggled: false
+      linestyle: dashed
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Producer Pending Inventory {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: average_pending_inventories_producers
+    pending_inventory_distributor:
+      checkbox_name: Pending Inventory (Distributor)
+      toggled: false
+      linestyle: dotted
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Distributor Pending Inventory {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: average_pending_inventories_distributors
+    average_demand_producers:
+      checkbox_name: Average Demand Producers
+      toggled: true
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Average Demand for {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: average_demand_producers
+    average_demand_distributors:
+      checkbox_name: Average Demand Distributors
+      toggled: true
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Average Demand for {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: average_demand_distributors
+  default_lims: [[-11.9243, 2811.76], [-214.506, 1590.36]]
 income:
   name: Income
   projection: 2d
@@ -138,6 +176,7 @@ dependency_graph:
       toggled: true
       show_weights: true
       directed: true
+  default_lims: [[-1.16751, 1.34292], [-1.22308, 1.08123]]
 plans:
   name: Plans
   title: Plans
@@ -174,6 +213,7 @@ plans:
       label_template: Reorders Placed for {i}
       colors: [red, blue, green, purple, orange]
       traj_key: reorder_requests
+  default_lims: [[6.05598, 2659.01], [-3.59794, 15.7125]]
 health:
   name: Health
   title: Health
@@ -251,7 +291,7 @@ employment:
       linestyle: solid
       linewidth: 1.5
       markersize: 6.0
-      label_template: Average Busyness of Workers in Sector {i}
+      label_template: Average Busyness in Sector {i}
       colors: [red, blue, green, purple, orange]
       traj_key: sectoral_busyness
     overall_busyness:
@@ -273,6 +313,7 @@ employment:
       colors: [red, blue, green, purple, orange]
       traj_key: transfer_requests_by_sector
       traj_key_x: transfer_requests_by_sector_t
+  default_lims: [[-5.40753, 1855.61], [-4.27839, 22.5763]]
 consumption_initialization:
   name: Consumption Initialization
   projection: 2d
