@@ -43,7 +43,6 @@ prices:
       label_template: Living Labor per Unit for {i}
       colors: [red, blue, green, purple, orange]
       traj_key: l
-  default_lims: [[40.5179, 2823.58], [-0.00328699, 0.475306]]
 inventory:
   name: Inventory
   projection: 2d
@@ -79,7 +78,7 @@ inventory:
       label_template: Average {i} posessed
       colors: [red, blue, green, purple, orange]
       traj_key: avg_endowments
-  default_lims: [[14.1319, 2765.82], [-1383.43, 12008.7]]
+  default_lims: [[-138.525, 13371.8], [-12124.3, 35958.0]]
 demand:
   name: Demand
   projection: 2d
@@ -106,6 +105,15 @@ demand:
       label_template: Average Pending Inventory for {i}
       colors: [red, blue, green, purple, orange]
       traj_key: average_pending_inventories
+    average_demand_producers:
+      checkbox_name: Average Demand Producers
+      toggled: false
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Average Demand for {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: average_demand_producers
     pending_inventory_producer:
       checkbox_name: Pending Inventory (Producer)
       toggled: false
@@ -115,6 +123,15 @@ demand:
       label_template: Producer Pending Inventory {i}
       colors: [red, blue, green, purple, orange]
       traj_key: average_pending_inventories_producers
+    average_demand_distributors:
+      checkbox_name: Average Demand Distributors
+      toggled: false
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Average Demand for {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: average_demand_distributors
     pending_inventory_distributor:
       checkbox_name: Pending Inventory (Distributor)
       toggled: false
@@ -124,25 +141,6 @@ demand:
       label_template: Distributor Pending Inventory {i}
       colors: [red, blue, green, purple, orange]
       traj_key: average_pending_inventories_distributors
-    average_demand_producers:
-      checkbox_name: Average Demand Producers
-      toggled: true
-      linestyle: solid
-      linewidth: 1.5
-      markersize: 6.0
-      label_template: Average Demand for {i}
-      colors: [red, blue, green, purple, orange]
-      traj_key: average_demand_producers
-    average_demand_distributors:
-      checkbox_name: Average Demand Distributors
-      toggled: true
-      linestyle: solid
-      linewidth: 1.5
-      markersize: 6.0
-      label_template: Average Demand for {i}
-      colors: [red, blue, green, purple, orange]
-      traj_key: average_demand_distributors
-  default_lims: [[-11.9243, 2811.76], [-214.506, 1590.36]]
 income:
   name: Income
   projection: 2d
@@ -161,6 +159,24 @@ income:
       colors: [green]
       traj_key: avg_account
       traj_key_x: ''
+    minimum_account:
+      checkbox_name: Minimum Account
+      toggled: true
+      linestyle: dashed
+      linewidth: 1.0
+      markersize: 6.0
+      labels: [Minimum Account]
+      colors: ['#758000']
+      traj_key: min_account
+    maximum_account:
+      checkbox_name: Maximum Account
+      toggled: true
+      linestyle: dotted
+      linewidth: 1.0
+      markersize: 6.0
+      labels: [Maximum Account]
+      colors: ['#00807c']
+      traj_key: max_account
 dependency_graph:
   name: Dependency Graph
   projection: 2d
@@ -172,11 +188,11 @@ dependency_graph:
     dependency_graph:
       special: discrete_graph
       checkbox_name: Dependency Graph
-      traj_key: A
       toggled: true
-      show_weights: true
+      traj_key: A
       directed: true
-  default_lims: [[-1.16751, 1.34292], [-1.22308, 1.08123]]
+      node_size: 400
+      colors: [red, blue, green, purple, orange]
 plans:
   name: Plans
   title: Plans
@@ -213,7 +229,33 @@ plans:
       label_template: Reorders Placed for {i}
       colors: [red, blue, green, purple, orange]
       traj_key: reorder_requests
-  default_lims: [[6.05598, 2659.01], [-3.59794, 15.7125]]
+    long_run_activity_levels:
+      checkbox_name: Long Run Activity Levels
+      toggled: true
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Long Run Activity Level of Sector {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: long_run_activity
+    minimum_hourly_output:
+      checkbox_name: Minimum Hourly Output
+      toggled: true
+      linestyle: dashed
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Min Hourly Output of {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: min_hrly_output
+    long_run_actual_activity_levels:
+      checkbox_name: Long Run Actual Activity Levels
+      toggled: true
+      linestyle: dashed
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Long Run Activity Level of Sector {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: long_run_actual_activity
 health:
   name: Health
   title: Health
@@ -285,24 +327,6 @@ employment:
       label_template: Workers Employed to Produce {i}
       colors: [red, blue, green, purple, orange]
       traj_key: available_employment_by_sector
-    sectoral_busyness:
-      checkbox_name: Sectoral Busyness
-      toggled: false
-      linestyle: solid
-      linewidth: 1.5
-      markersize: 6.0
-      label_template: Average Busyness in Sector {i}
-      colors: [red, blue, green, purple, orange]
-      traj_key: sectoral_busyness
-    overall_busyness:
-      checkbox_name: Overall Busyness
-      toggled: true
-      linestyle: dashed
-      linewidth: 1.5
-      markersize: 6.0
-      label_template: Societal Busyness
-      colors: ['#ff11d3']
-      traj_key: overall_busyness
     transfer_requests:
       checkbox_name: Transfer Requests
       toggled: true
@@ -313,7 +337,24 @@ employment:
       colors: [red, blue, green, purple, orange]
       traj_key: transfer_requests_by_sector
       traj_key_x: transfer_requests_by_sector_t
-  default_lims: [[-5.40753, 1855.61], [-4.27839, 22.5763]]
+    long_run_sectoral_employment:
+      checkbox_name: Long-Run Sectoral Employment
+      toggled: false
+      linestyle: dashed
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Long Run Employment in {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: long_run_employment_by_sector
+    equilibrium_employment:
+      checkbox_name: Equilibrium Employment
+      toggled: true
+      linestyle: dotted
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Minimum Necessary Employment for Sector {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: eqb_employment
 consumption_initialization:
   name: Consumption Initialization
   projection: 2d
@@ -340,3 +381,86 @@ consumption_initialization:
       label_template: Consumption Period for {i}
       colors: [red, blue, green, purple, orange]
       traj_key: mean_consumption_periods
+employment_histograms:
+  name: Employment Histograms
+  projection: 2d
+  axis_visible: true
+  grid_visible: true
+  ticks_visible: true
+  frame_visible: true
+  plots:
+    sectoral_employment:
+      special: hist
+      checkbox_name: Sectoral Employment
+      toggled: true
+      dist: available_employment_by_sector
+      density: false
+      gradient: None
+      label_template: Employment in Sector {i}
+      colors: [red, blue, green, purple, orange]
+      edgecolors: ['', '', '', '', '']
+      histtype: bar
+      align: left
+busyness:
+  name: Busyness
+  projection: 2d
+  axis_visible: true
+  grid_visible: true
+  ticks_visible: true
+  frame_visible: true
+  plots:
+    overall_busyness:
+      checkbox_name: Overall Busyness
+      toggled: false
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      labels: [Societal Busyness]
+      colors: ['#ff11d3']
+      traj_key: overall_busyness
+    overall_weekly_busyness:
+      checkbox_name: Overall Weekly Busyness
+      toggled: true
+      linestyle: dashed
+      linewidth: 1.5
+      markersize: 6.0
+      labels: [Societal Busyness]
+      colors: ['#ff11d3']
+      traj_key: overall_weekly_busyness
+    min_reproductive_busyness:
+      checkbox_name: Min Reproductive Busyness
+      toggled: true
+      linestyle: dotted
+      linewidth: 1.5
+      markersize: 6.0
+      labels: [Minimal Busyness]
+      colors: [purple]
+      traj_key: busy_lower_bound
+    max_reproductive_busyness:
+      checkbox_name: Max Reproductive Busyness
+      toggled: true
+      linestyle: dashed
+      linewidth: 1.5
+      markersize: 6.0
+      labels: [Maximal Busyness]
+      colors: [purple]
+      traj_key: busy_upper_bound
+    sectoral_busyness:
+      checkbox_name: Sectoral Busyness
+      toggled: false
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Average Busyness in Sector {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: sectoral_busyness
+    sectoral_weekly_busyness:
+      checkbox_name: Sectoral Weekly Busyness
+      toggled: true
+      linestyle: dashed
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Average Busyness in Sector {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: sectoral_weekly_busyness
+  default_lims: [[-76.2614, 15054.3], [-0.187545, 0.63421]]
