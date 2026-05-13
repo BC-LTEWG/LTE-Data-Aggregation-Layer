@@ -1,6 +1,6 @@
 import os
 from .parameters import Params
-from .Overseer import Overseer
+from .OverseerNew import Overseer
 from typing import Tuple
 import numpy as np
 import subprocess
@@ -20,5 +20,5 @@ def get_trajectories(params: Params):
     sim_finished = False
     while not sim_finished:
         sim_finished = overseer.step()
-        traj, t = overseer.get_data()
-        yield traj, t
+        traj = overseer.get_data()
+        yield traj
