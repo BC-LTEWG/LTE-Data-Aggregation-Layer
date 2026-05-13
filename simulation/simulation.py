@@ -1,6 +1,6 @@
 import os
 from .parameters import Params
-from .OverseerNew import Overseer
+from .Overseer import Overseer
 from typing import Tuple
 import numpy as np
 import subprocess
