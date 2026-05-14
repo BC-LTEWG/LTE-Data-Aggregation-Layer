@@ -16,5 +16,5 @@ def get_trajectories(params: Params):
     sim_finished = False
     while not sim_finished:
         sim_finished = overseer.step()
-        traj, t = overseer.get_data()
-        yield traj, t
+        traj = overseer.get_data()
+        yield traj

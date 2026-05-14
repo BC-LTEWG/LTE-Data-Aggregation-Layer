@@ -4,8 +4,6 @@ from typing import Tuple
 from scipy.linalg import inv
 from pathlib import Path
 import math
-import copy
-from overseer.tools.dataclasses import Replace, Extend, Append
 
 class Overseer:
     """ The guy who watches the LTE and keeps track of the data. """
@@ -46,7 +44,6 @@ class Overseer:
 
         reasonable_logs = params.N_c < 10 and params.N_S <= 3000 and params.N_h < 100
         self.is_logging = params.is_logging and reasonable_logs and self.log_path is not None
-        self.is_logging = False
 
         # create and start the collection thread
         args = self._get_args_from_settings()
@@ -458,51 +455,48 @@ class Overseer:
 
         self.long_run_employment_by_sector += sectoral_employment
 
-        self.traj["prices"] = Append(self.prices)
-        # self._update_data("prices", self.prices)
-        self.traj["values"] = Append(self.values)
-        # self._update_data("values", self.traj["values"][-1])
-        self.traj["supply"] = Append(overall_supply)
-        # self._update_data("supply", overall_supply)
-        self.traj["supply_micro"] = Append(overall_supply_micro)
-        self.traj["accessible_supply"] = Append(accessible_supply)
-        self.traj["accessible_supply_micro"] = Append(accessible_supply_micro)
-        self.traj["avg_account"] = Append(np.average(accounts))
-        self.traj["min_account"] = Append(np.min(accounts))
-        self.traj["max_account"] = Append(np.max(accounts))
-        self.traj["avg_endowments"] = Append(average_endowments)
-        self.traj["plans_in_progress"] = Append(plans_in_motion)
-        self.traj["goods_in_production"] = Append(quantities_in_prod)
-        self.traj["actual_goods_in_production"] = Append(actual_quantities_in_prod)
-        self.traj["n_healthy"] = Append(n_healthy)
-        self.traj["n_unhealthy"] = Append(n_unhealthy)
-        self.traj["average_proficiencies"] = Append(average_proficiencies)
-        self.traj["employment"] = Append(self.current_employment)
-        self.traj["mean_consumption_frequencies"] = Append(self.consumption_frequencies)
-        self.traj["mean_consumption_periods"] = Append(self.consumption_periods)
-        self.traj["average_demand"] = Append(average_demands)
-        self.traj["average_demand_producers"] = Append(average_demands_producers)
-        self.traj["average_demand_distributors"] = Append(average_demands_distributors)
-        self.traj["average_pending_inventories"] = Append(average_pending_inventories)
-        self.traj["average_pending_inventories_distributors"] = Append(average_pending_inventories_distributors)
-        self.traj["average_pending_inventories_producers"] = Append(average_pending_inventories_producers)
-        self.traj["reorder_requests"] = Append(self.reorder_requests)
-        self.traj["available_employment_by_sector"] = Append(sectoral_employment)
-        self.traj["sectoral_busyness"] = Append(sectoral_busyness)
-        self.traj["overall_busyness"] = Append(self.overall_busyness)
-        self.traj["sectoral_weekly_busyness"] = Append(sectoral_weekly_busyness)
-        self.traj["overall_weekly_busyness"] = Append(self.overall_weekly_busyness)
-        self.traj["order_sizes"] = Append(order_size_averages)
-        self.traj["l"] = Append(self.l)
-        self.traj["transfer_requests_by_sector"] = Append(self.transfer_requests_by_sector)
-        self.traj["long_run_employment_by_sector"] = Append(self.long_run_employment_by_sector / max(self.current_t, 1))
-        self.traj["eqb_employment"] = Append(self.eqb_employment)
-        self.traj["min_hrly_output"] = Append(self.min_hrly_output)
-        self.traj["busy_lower_bound"] = Append(self.busy_lower_bd)
-        self.traj["busy_upper_bound"] = Append(self.busy_upper_bd)
-        self.traj["long_run_activity"] = Append(self.long_run_sector_activity / max(self.current_t, 1))
-        self.traj["long_run_actual_activity"] = Append(self.long_run_actual_sector_activity / max(self.current_t, 1))
-        self.traj["transfer_requests_by_sector_t"] = Replace(self.transfer_requests_by_sector_t)
+        self._update_data("prices", self.prices)
+        self._update_data("values", self.traj["values"][-1])
+        self._update_data("supply", overall_supply)
+        self._update_data("supply_micro", overall_supply_micro)
+        self._update_data("accessible_supply", accessible_supply)
+        self._update_data("accessible_supply_micro", accessible_supply_micro)
+        self._update_data("avg_account", np.average(accounts))
+        self._update_data("min_account", np.min(accounts))
+        self._update_data("max_account", np.max(accounts))
+        self._update_data("avg_endowments", average_endowments)
+        self._update_data("plans_in_progress", plans_in_motion)
+        self._update_data("goods_in_production", quantities_in_prod)
+        self._update_data("actual_goods_in_production", actual_quantities_in_prod)
+        self._update_data("n_healthy", n_healthy)
+        self._update_data("n_unhealthy", n_unhealthy)
+        self._update_data("average_proficiencies", average_proficiencies)
+        self._update_data("employment", self.current_employment)
+        self._update_data("mean_consumption_frequencies", self.consumption_frequencies)
+        self._update_data("mean_consumption_periods", self.consumption_periods)
+        self._update_data("average_demand", average_demands)
+        self._update_data("average_demand_producers", average_demands_producers)
+        self._update_data("average_demand_distributors", average_demands_distributors)
+        self._update_data("average_pending_inventories", average_pending_inventories)
+        self._update_data("average_pending_inventories_distributors", average_pending_inventories_distributors)
+        self._update_data("average_pending_inventories_producers", average_pending_inventories_producers)
+        self._update_data("reorder_requests", self.reorder_requests)
+        self._update_data("available_employment_by_sector", sectoral_employment)
+        self._update_data("sectoral_busyness", sectoral_busyness)
+        self._update_data("overall_busyness", self.overall_busyness)
+        self._update_data("sectoral_weekly_busyness", sectoral_weekly_busyness)
+        self._update_data("overall_weekly_busyness", self.overall_weekly_busyness)
+        self._update_data("order_sizes", order_size_averages)
+        self._update_data("l", self.traj["l"][-1])
+        self._update_data("transfer_requests_by_sector", self.transfer_requests_by_sector)
+        self._update_data("long_run_employment_by_sector", self.long_run_employment_by_sector / max(self.current_t, 1))
+        self._update_data("eqb_employment", self.traj["eqb_employment"][-1])
+        self._update_data("min_hrly_output", self.traj["min_hrly_output"][-1])
+        self._update_data("busy_lower_bound", self.traj["busy_lower_bound"][-1])
+        self._update_data("busy_upper_bound", self.traj["busy_upper_bound"][-1])
+        self._update_data("long_run_activity", self.long_run_sector_activity / max(self.current_t, 1))
+        self._update_data("long_run_actual_activity", self.long_run_actual_sector_activity / max(self.current_t, 1))
+        self.traj["transfer_requests_by_sector_t"] = self.transfer_requests_by_sector_t
 
         self.transfer_requests_by_sector = np.zeros(self.settings["n_products"])
         self.reorder_requests = np.zeros(self.settings["n_products"])
@@ -517,62 +511,58 @@ class Overseer:
         # omega = 8*5 / (24*7)
 
         self.eqb_employment = sectoral_weekly_labor_req / (8*5)
-        self.busy_lower_bd = 0.7*(8*5 / (24*7))
-        self.busy_upper_bd = (8*5 / (24*7))
         self.min_hrly_output = min_hrly_output
-        self.values = copy.deepcopy(self.prices)
 
     def _declare_traj(self):
         """ 
         After time = 0 finishes, the trajectories dictionary is initialized from this function. You would need to add new ones to this if making your own.
         """
         return {
-            "prices": Append(self.prices),
-            "values": Append(self.values),
-            "theoretical_values": Append(self._get_theoretical_values(self.A,self.l)),
-            "supply": Append(self._get_supply(self.distributors, self.producers)),
-            "supply_micro": Append(self._get_supply(self.distributors, self.producers, micro= True)),
-            "accessible_supply": Append(self._get_supply(self.distributors)),
-            "accessible_supply_micro": Append(self._get_supply(self.distributors, micro= True)),
-            "avg_account": Append(np.average([dic["account"] for _, dic in self.persons.items()])),
-            "min_account": Append(np.min([dic["account"] for _, dic in self.persons.items()])),
-            "max_account": Append(np.max([dic["account"] for _, dic in self.persons.items()])),
-            "avg_turnover_times": Append(self.turnover_times),
-            "avg_endowments": Append(self._get_average_endowments(self.persons)),
+            "prices": np.array([self.prices]),
+            "values": np.array([self.prices]),
+            "theoretical_values": np.array([self._get_theoretical_values(self.A,self.l)]),
+            "supply": np.array([self._get_supply(self.distributors, self.producers)]),
+            "supply_micro": np.array([self._get_supply(self.distributors, self.producers, micro= True)]),
+            "accessible_supply": np.array([self._get_supply(self.distributors)]),
+            "accessible_supply_micro": np.array([self._get_supply(self.distributors, micro= True)]),
+            "avg_account": np.array([np.average([dic["account"] for _, dic in self.persons.items()])]),
+            "min_account": np.array([np.min([dic["account"] for _, dic in self.persons.items()])]),
+            "max_account": np.array([np.max([dic["account"] for _, dic in self.persons.items()])]),
+            "avg_turnover_times": np.array([self.turnover_times]),
+            "avg_endowments": np.array([self._get_average_endowments(self.persons)]),
             "A": self.A,
-            "plans_in_progress": Append(np.zeros(self.settings["n_products"])),
-            "goods_in_production": Append(np.zeros(self.settings["n_products"])),
-            "actual_goods_in_production": Append(np.zeros(self.settings["n_products"])),
-            "n_healthy": Append(self.settings["n_persons"]),
-            "n_unhealthy": Append(0),
-            "average_proficiencies": Append(self._get_average_abilities(self.persons)),
-            "employment": Append(self.current_employment),
-            "mean_consumption_frequencies": Append(self.consumption_frequencies),
-            "mean_consumption_periods": Append(self.consumption_periods),
-            "average_demand": Append(self._get_average(self.producers, self.distributors, key= "demand_signals")),
-            "average_demand_producers": Append(self._get_average(self.producers, key= "demand_signals")),
-            "average_demand_distributors": Append(self._get_average(self.distributors, key= "demand_signals")),
-            "average_pending_inventories": Append(self._get_average(self.producers, self.distributors, key= "inventory")),
-            "average_pending_inventories_distributors": Append(self._get_average(self.distributors, key= "inventory")),
-            "average_pending_inventories_producers": Append(self._get_average(self.producers, key= "inventory")),
-            "reorder_requests": Append(self.reorder_requests),
-            "available_employment_by_sector": Append(self._get_available_employment_by_sector(self.producers)),
-            "long_run_employment_by_sector": Append(self._get_available_employment_by_sector(self.producers)),
-            "overall_busyness": Append(self.overall_busyness),
-            "sectoral_busyness": Append(self._get_sectoral_busyness(self.producers)),
-            "overall_weekly_busyness": Append(self.overall_weekly_busyness),
-            "sectoral_weekly_busyness": Append(self._get_sectoral_busyness(self.producers, weekly= True)),
-            "order_sizes": Append([np.average(orders) for orders in self.order_sizes]),
-            "l": Append(self.l),
-            "transfer_requests_by_sector": Append(self.transfer_requests_by_sector),
-            "transfer_requests_by_sector_t": Replace(self.transfer_requests_by_sector_t),
-            "eqb_employment": Append(self.eqb_employment),
-            "min_hrly_output": Append(self.min_hrly_output),
-            "busy_lower_bound": Append(self.busy_lower_bd),
-            "busy_upper_bound": Append(self.busy_upper_bd),
-            "long_run_activity": Append(self.long_run_sector_activity),
-            "long_run_actual_activity": Append(self.long_run_actual_sector_activity),
-            "t": Append(self.current_t)
+            "plans_in_progress": np.array([np.zeros(self.settings["n_products"])]),
+            "goods_in_production": np.array([np.zeros(self.settings["n_products"])]),
+            "actual_goods_in_production": np.array([np.zeros(self.settings["n_products"])]),
+            "n_healthy": np.array([self.settings["n_persons"]]),
+            "n_unhealthy": np.array([0]),
+            "average_proficiencies": np.array([self._get_average_abilities(self.persons)]),
+            "employment": np.array([self.current_employment]),
+            "mean_consumption_frequencies": np.array([self.consumption_frequencies]),
+            "mean_consumption_periods": np.array([self.consumption_periods]),
+            "average_demand": np.array([self._get_average(self.producers, self.distributors, key= "demand_signals")]),
+            "average_demand_producers": np.array([self._get_average(self.producers, key= "demand_signals")]),
+            "average_demand_distributors": np.array([self._get_average(self.distributors, key= "demand_signals")]),
+            "average_pending_inventories": np.array([self._get_average(self.producers, self.distributors, key= "inventory")]),
+            "average_pending_inventories_distributors": np.array([self._get_average(self.distributors, key= "inventory")]),
+            "average_pending_inventories_producers": np.array([self._get_average(self.producers, key= "inventory")]),
+            "reorder_requests": np.array([self.reorder_requests]),
+            "available_employment_by_sector": np.array([self._get_available_employment_by_sector(self.producers)]),
+            "long_run_employment_by_sector": np.array([self._get_available_employment_by_sector(self.producers)]),
+            "overall_busyness": np.array([self.overall_busyness]),
+            "sectoral_busyness": np.array([self._get_sectoral_busyness(self.producers)]),
+            "overall_weekly_busyness": np.array([self.overall_weekly_busyness]),
+            "sectoral_weekly_busyness": np.array([self._get_sectoral_busyness(self.producers, weekly= True)]),
+            "order_sizes": np.array([[np.average(orders) for orders in self.order_sizes]]),
+            "l": np.array([self.l]),
+            "transfer_requests_by_sector": np.array([self.transfer_requests_by_sector]),
+            "transfer_requests_by_sector_t": self.transfer_requests_by_sector_t,
+            "eqb_employment": np.array([self.eqb_employment]),
+            "min_hrly_output": np.array([self.min_hrly_output]),
+            "busy_lower_bound": np.array([0.7*(8*5 / (24*7))]),
+            "busy_upper_bound": np.array([(8*5 / (24*7))]),
+            "long_run_activity": np.array([self.long_run_sector_activity]),
+            "long_run_actual_activity": np.array([self.long_run_actual_sector_activity])
         }
 
     # The stuff below this point are all just helper functions. 
@@ -620,7 +610,6 @@ class Overseer:
                         else:
                             self._update_hourly_stats()
                         self.current_t = dic["t"]
-                        self.traj["t"] = Append(self.current_t)
                         self.t.append(self.current_t)
                         self._process_dic(dic)
                         return False
@@ -638,9 +627,9 @@ class Overseer:
 
     def get_data(self):
         if hasattr(self, "traj"):
-            return self.traj
+            return self.traj, self.t
         else:
-            return {}
+            return {}, self.t
 
 
     def _get_args_from_settings(self):
