@@ -44,6 +44,7 @@ class Overseer:
 
         reasonable_logs = params.N_c < 10 and params.N_S <= 3000 and params.N_h < 100
         self.is_logging = params.is_logging and reasonable_logs and self.log_path is not None
+        self.is_logging = False
 
         # create and start the collection thread
         args = self._get_args_from_settings()

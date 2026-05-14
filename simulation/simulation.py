@@ -9,7 +9,7 @@ from scipy.linalg import inv
 
 # REPLACE WITH THE FILE PATH TO YOUR OWN BINARY. IF USING WINDOWS, MAKE SURE YOU USE DOUBLE FORWARD SLASHES (e.g. C:\\Users\\...)
 EXE_PATH = "/home/lennyyyyyyyy/Github/Labor-Time-Economy-Simulation/bin/sim"
-LOG_PATH = "/home/lennyyyyyyyy/Documents/Modeling-Tools/logs/log.jsonl"
+LOG_PATH = "/home/lennyyyyyyyy/Documents/Overseer/logs/log.jsonl"
 
 def get_trajectories(params: Params):
     overseer = Overseer(EXE_PATH, params, LOG_PATH)
