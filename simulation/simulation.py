@@ -1,3 +1,5 @@
+import logging
+logger = logging.getLogger(__name__)
 import os
 from .parameters import Params
 from .Overseer import Overseer
@@ -15,10 +17,13 @@ EXE_PATH = "/home/alex/github/Labor-Time-Economy-Simulation/bin/sim"
 # LOG_PATH = "/media/Big-Boy/Nextcloud/Personal-Programming/python/Modeling-Tools-Data/models/LTE-Data-Aggregation-Layer/output_log.txt"
 LOG_PATH = "/home/alex/Nextcloud/Personal-Programming/python/Modeling-Tools-Data/models/LTE-Data-Aggregation-Layer/output_log.txt"
 
-def get_trajectories(params: Params):
+def get_trajectories(params: Params, event_queue):
     overseer = Overseer(EXE_PATH, params, LOG_PATH)
-    sim_finished = False
-    while not sim_finished:
-        sim_finished = overseer.step()
-        traj = overseer.get_data()
-        yield traj
+    try:
+        sim_finished = False
+        while not sim_finished:
+            sim_finished = overseer.step()
+            traj = overseer.get_data()
+            yield traj
+    finally:
+        overseer.collector.stop()
