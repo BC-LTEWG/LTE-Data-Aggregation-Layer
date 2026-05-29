@@ -41,7 +41,7 @@ class Overseer:
             "person_ability_stddev": params.v_ability,
             "n_abilities": 3, # needs to be a parameter
             # the rest of these are dependent variables
-            "n_products": params.N_c + params.N_c // params.m_r,
+            "n_products": 2 * params.N_c + params.N_c // params.m_r,
         }
 
         reasonable_logs = params.N_c < 10 and params.N_S <= 3000 and params.N_h < 100
