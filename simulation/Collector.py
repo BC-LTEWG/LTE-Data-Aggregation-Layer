@@ -1,3 +1,5 @@
+import logging
+logger = logging.getLogger(__name__)
 import queue, os, json
 from dataclasses import dataclass
 import subprocess, threading
@@ -46,6 +48,7 @@ class Collector:
                 stderr= subprocess.PIPE,
                 text= True,
                 bufsize= 1,
+                start_new_session= True
             )
         assert self.proc.stdout is not None
         
@@ -77,6 +80,7 @@ class Collector:
                     try:
                         self.output_queue.put(StreamItem("stdout", "json", json.loads(line)))
                     except json.JSONDecodeError:
+                        print(f"Exception for {line=}?")
                         self.output_queue.put(StreamItem("stdout", "text", line))
                 else:
                     self.output_queue.put(StreamItem("stderr", "text", line))
@@ -89,3 +93,45 @@ class Collector:
             except Exception:
                 pass
             self.output_queue.put(StreamItem(stream_name, "eof", None))
+
+    def stop(self, timeout: float = 1.0):
+        proc = getattr(self, "proc", None)
+        if proc is None:
+            return True
+
+        if proc.poll() is not None:
+            return True
+
+        try:
+            if os.name == "nt":
+                proc.terminate()
+            else:
+                import signal
+                os.killpg(proc.pid, signal.SIGTERM)
+
+            try:
+                proc.wait(timeout=timeout)
+            except subprocess.TimeoutExpired:
+                if os.name == "nt":
+                    proc.kill()
+                else:
+                    os.killpg(proc.pid, signal.SIGKILL)
+                proc.wait(timeout=timeout)
+        finally:
+            for pipe_name in ("stdout", "stderr"):
+                pipe = getattr(proc, pipe_name, None)
+                if pipe is not None:
+                    try:
+                        pipe.close()
+                    except Exception:
+                        pass
+
+            for thread_name in ("out_thread", "err_thread"):
+                thread = getattr(self, thread_name, None)
+                if thread is not None:
+                    try:
+                        thread.join(timeout=0.25)
+                    except RuntimeError:
+                        pass
+
+        return proc.poll() is not None

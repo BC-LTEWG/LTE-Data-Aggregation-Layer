@@ -1,3 +1,5 @@
+import logging
+logger = logging.getLogger(__name__)
 import numpy as np
 from .Collector import Collector
 from typing import Tuple
@@ -11,6 +13,7 @@ class Overseer:
     """ The guy who watches the LTE and keeps track of the data. """
     def __init__(self, bin_path, params, log_path_str: str | None = None):
         self.params = params
+
 
         if log_path_str is not None:
             log_path = Path(log_path_str).expanduser().resolve()
@@ -39,14 +42,13 @@ class Overseer:
             "init_working_week": params.W,
             "daily_sick_chance": params.S,
             "person_ability_stddev": params.v_ability,
-            "n_abilities": 3, # needs to be a parameter
+            "n_abilities": params.N_a,
             # the rest of these are dependent variables
             "n_products": 2 * params.N_c + params.N_c // params.m_r,
         }
 
         reasonable_logs = params.N_c < 10 and params.N_S <= 3000 and params.N_h < 100
         self.is_logging = params.is_logging and reasonable_logs and self.log_path is not None
-        self.is_logging = False
 
         # create and start the collection thread
         args = self._get_args_from_settings()
@@ -67,7 +69,7 @@ class Overseer:
 
         self.persons = {i: {
             "account": 0,
-            "endowment": np.zeros(self.settings["n_commodities"]),
+            "endowment": np.zeros(self.settings["n_products"]),
             "abilities": np.zeros(self.settings["n_abilities"]),
             "health": "Healthy", # everyone starts in good health
             "recent_busyness": 0.0
@@ -124,59 +126,53 @@ class Overseer:
         match client:
             case "Society":
                 if label == "A":
-                    coords = tuple(dic.get("coords"))
+                    coords_str = dic["coords"]
+                    coords = tuple(int(num) for num in coords_str[1:len(coords_str)-1].split(","))
+                    # coords = tuple(dic.get("coords"))
                     i, j = coords
-                    a_ij = dic.get("value")
+                    a_ij = dic["value"]
                     self.A[i][j] = a_ij
 
                 if label == "l":
-                    i = dic["index"]
-                    value = dic["value"]
-                    l_i = value
+                    i = dic["prod_id"]
+                    l_i = dic["value"]
+
                     self.l[i] = l_i
 
                 if label == "price":
-                    self.prices[id] = values[0]
+                    id = dic["product_id"]
+                    val = dic["price_per_unit"]
+                    self.prices[id] = val
 
                 if label == "mean_consumption_frequency":
-                    pair = list(dic.items())[-1]
-                    prod_str = pair[0]
-                    prod_id = int(prod_str.split('_')[1])
-                    val = pair[1]
-                    self.consumption_frequencies[prod_id] = val
-
-                if label == "mean_consumption_period":
-                    pair = list(dic.items())[-1]
-                    prod_str = pair[0]
-                    prod_id = int(prod_str.split('_')[1])
-                    val = pair[1]
-                    self.consumption_periods[prod_id] = val
+                    id = dic["product_id"]
+                    val = dic["value"]
+                    self.consumption_frequencies[id] = val
+                    self.consumption_periods[id] = 1/max(val, 1e-5)
 
                 if label == "employment":
-                    self.current_employment = dic["values"][0]
+                    self.current_employment = dic["total"]
 
             case "Person":
                 if label == "age":
                     self.persons[id]["health"] = values[0]
 
                 if label == "account":
-                    self.persons[id]["account"] = values[0]
+                    self.persons[id]["account"] = dic["value"]
 
                 if label == "health_status":
-                    self.persons[id]["health"] = values[0]
+                    self.persons[id]["health"] = dic["status"]
 
                 if label == "consumption":
-                    pair = list(dic.items())[-1]
-                    prod_str = pair[0]
-                    prod_id = int(prod_str.split('_')[1])
-                    amt = pair[1]
+                    prod_id = dic["product_id"]
+                    amt = dic["quantity"]
                     self.persons[id]["endowment"][prod_id] = amt
 
                 if label == "ability":
                     ability_id = dic["ability"]
                     val = dic["value"]
                     person_id = dic['id']
-                    self.persons[person_id]["abilities"][ability_id-1] = val
+                    self.persons[person_id]["abilities"][ability_id] = val
 
                 if label == "inventory":
                     prod_id = dic["product_id"]
@@ -185,17 +181,14 @@ class Overseer:
                     self.persons[person_id]["endowment"][prod_id] = amt
 
                 if label == "purchase":
-                    pair = list(dic.items())[-1]
-                    prod_str = pair[0]
-                    prod_id = int(prod_str.split('_')[1])
-                    amt = pair[1]
+                    prod_id = dic["product_id"]
+                    amt = dic["quantity"]
                     self.persons[id]["endowment"][prod_id] += amt
                     cost = self.prices[prod_id]*amt
                     self.persons[id]["account"] -= cost
 
-                if label == "hours":
-                    self.persons[id]["account"] += values[0]
-
+                if label == "hours_worked":
+                    self.persons[id]["account"] += dic["hours"]
 
             case "Producer":
                 if label == "inventory_level":
@@ -212,17 +205,20 @@ class Overseer:
                     self.producers[id]["inventory_micro"][prod_id] -= amt
 
                 if label == "catalog":
-                    self.producers[id]["catalog"] = values
+                    product_ids_str = dic["product_ids"]
+                    product_ids_str_list = product_ids_str.split(",")
+                    product_ids = [int(product_id) for product_id in product_ids_str_list]
+                    self.producers[id]["catalog"].extend(product_ids)
 
                 if label == "pursued_plan":
                     producer_id = id
-                    customer_id = values[0]
+                    customer_id = dic["customer_id"]
                     is_distributor = (customer_id >= self.settings["n_producers"])
                     if is_distributor:
                         customer_id = self._get_dist_key(customer_id)
-                    prod_id = values[1]
-                    amt = values[2]
-                    n_workers = values[3]
+                    prod_id = dic["product_id"]
+                    amt = dic["quantity"]
+                    n_workers = dic["num_workers"]
                     actual_amt = self.get_expected_quantity(prod_id, amt, n_workers)
 
                     self.active_plans[prod_id]["plans"] += 1
@@ -236,35 +232,11 @@ class Overseer:
                     else:
                         self.producers[customer_id]["inc_inventory"][prod_id] += amt
 
-                # if label == "pursued_plan":
-                #     producer_id = id
-                #     customer_id = values[0]
-                #     is_distributor = (customer_id >= self.settings["n_producers"])
-                #     if is_distributor:
-                #         customer_id = self._get_dist_key(customer_id)
-                #     prod_id = values[1]
-                #     amt = values[2]
-
-                #     self.active_plans[prod_id]["plans"] += 1
-                #     self.active_plans[prod_id]["quantity"] += amt
-                #     if is_distributor:
-                #         self.distributors[customer_id]["inc_inventory"][prod_id] += amt
-                #     else:
-                #         self.producers[customer_id]["inc_inventory"][prod_id] += amt
-
                 if label == "ended_plan":
-                    prod_str = values[0]
-                    prod_id = int(prod_str.split('_')[1])
-                    amt = values[1]
-                    actual_amt = values[2]
-
-                    # pair = list(dic.items())[-1]
-                    # prod_str = pair[0]
-                    # prod_id = int(prod_str.split('_')[1])
-                    # amt = pair[1]
+                    prod_id = dic["product_id"]
+                    amt = dic["quantity"]
                     self.active_plans[prod_id]["plans"] -= 1
                     self.active_plans[prod_id]["quantity"] -= amt
-                    self.active_plans[prod_id]["actual_quantity"] -= actual_amt
 
                 if label == "shipment_received":
                     prod_id = dic["product_id"]
@@ -272,48 +244,29 @@ class Overseer:
                     self.producers[id]["inc_inventory"][prod_id] -= amt
 
                 if label == "current_demand":
-                    pair = list(dic.items())[-1]
-                    prod_str = pair[0]
-                    prod_id = int(prod_str.split('_')[1])
-                    demand = pair[1]
+                    prod_id = dic["product_id"]
+                    demand = dic["demand"]
                     self.producers[id]["demand_signals"][prod_id] = demand
-
-                # if label == "pending_inventory":
-                #     pair = list(dic.items())[-1]
-                #     prod_str = pair[0]
-                #     prod_id = int(prod_str.split('_')[1])
-                #     threshold = pair[1]
-                #     self.producers[id]["pending_inventory"][prod_id] = threshold
 
                 if label in {"reorder" "reorder_failure"}:
                     prod_id = dic["product_id"]
                     amt = dic["amount"]
                     self.reorder_requests[prod_id] += 1
 
-                if label == "newly employed":
-                    prod_id = values[0]
-                    self.producers[prod_id]["employees"] += 1
+                if label == "newly_employed":
+                    self.producers[id]["employees"] += 1
 
                 if label == "busyness":
-                    firm_busyness = values[0]
-                    overall_busyness = values[1]
-                    transfers_available = values[2]
+                    firm_busyness = dic["firm_busyness"]
+                    overall_busyness = dic["societal_busyness"]
+                    transfers_available = dic["max_workers_for_transfer"]
                     self.producers[id]["recent_busyness"] = firm_busyness
                     self.overall_busyness = overall_busyness
 
-                if label == "weekly_busyness":
-                    firm_busyness = values[0]
-                    overall_busyness = values[1]
-                    transfers_available = values[2]
-                    self.producers[id]["recent_weekly_busyness"] = firm_busyness
-                    self.overall_weekly_busyness = overall_busyness
-
                 if label == "accepted_order":
-                    pair = list(dic.items())[-1]
-                    prod_str = pair[0]
-                    prod_id = int(prod_str.split('_')[1])
-                    amt = pair[1]
-                    self.order_sizes[prod_id].append(amt)
+                    prod_id = dic["product_id"]
+                    time = dic["offered_turnaround_time"]
+                    self.turnover_times[prod_id].append(time)
 
                 if label == "transfer_request":
                     cat = self.producers[id]["catalog"]
@@ -323,9 +276,8 @@ class Overseer:
                             self.transfer_requests_by_sector_t = np.append(self.transfer_requests_by_sector_t, self.current_t)
 
                 if label == "transfer":
-                    worker_id = id
-                    old_emp = values[0]
-                    new_emp = values[1]
+                    old_emp = dic["old_workplace_id"]
+                    new_emp = dic["new_workplace_id"]
                     self.producers[old_emp]["employees"] -= 1
                     self.producers[new_emp]["employees"] += 1
 
@@ -345,14 +297,15 @@ class Overseer:
                     self.distributors[dist_key]["inventory_micro"][prod_id] -= amt
 
                 if label == "catalog":
+                    product_ids_str = dic["product_ids"]
+                    product_ids_str_list = product_ids_str.split(",")
+                    product_ids = [int(product_id) for product_id in product_ids_str_list]
                     dist_key = self._get_dist_key(id)
-                    self.distributors[dist_key]["catalog"] = values
+                    self.distributors[dist_key]["catalog"].extend(product_ids)
 
                 if label == "accepted_order":
-                    pair = list(dic.items())[-1]
-                    prod_str = pair[0]
-                    prod_id = int(prod_str.split('_')[1])
-                    time = pair[1]
+                    prod_id = dic["product_id"]
+                    time = dic["offered_turnaround_time"]
                     self.turnover_times[prod_id].append(time)
 
                 if label == "shipment_received":
@@ -360,56 +313,29 @@ class Overseer:
                     amt = dic["amount"]
                     dist_id = self._get_dist_key(id)
                     self.distributors[dist_id]["inc_inventory"][prod_id] -= amt
-                    self.distributors[dist_id]["inventory_micro"][prod_id] += amt
 
                 if label == "current_demand":
-                    pair = list(dic.items())[-1]
-                    prod_str = pair[0]
-                    prod_id = int(prod_str.split('_')[1])
-                    demand = pair[1]
+                    prod_id = dic["product_id"]
+                    demand = dic["demand"]
                     dist_id = self._get_dist_key(id)
                     self.distributors[dist_id]["demand_signals"][prod_id] = demand
-
-                # if label == "pending_inventory":
-                #     pair = list(dic.items())[-1]
-                #     prod_str = pair[0]
-                #     prod_id = int(prod_str.split('_')[1])
-                #     threshold = pair[1]
-                #     dist_id = self._get_dist_key(id)
-                #     self.distributors[dist_id]["pending_inventory"][prod_id] = threshold
 
                 if label in {"reorder", "reorder_failure"}:
                     prod_id = dic["product_id"]
                     amt = dic["amount"]
                     self.reorder_requests[prod_id] += 1
 
-                if label == "newly employed":
-                    dist_id = values[0]
-                    dist_id = self._get_dist_key(dist_id)
+                if label == "newly_employed":
+                    dist_id = self._get_dist_key(id)
                     self.distributors[dist_id]["employees"] += 1
 
                 if label == "busyness":
-                    firm_busyness = values[0]
-                    overall_busyness = values[1]
-                    transfers_available = values[2]
+                    firm_busyness = dic["firm_busyness"]
+                    overall_busyness = dic["societal_busyness"]
+                    transfers_available = dic["max_workers_for_transfer"]
                     dist_id = self._get_dist_key(id)
                     self.distributors[dist_id]["recent_busyness"] = firm_busyness
                     self.overall_busyness = overall_busyness
-
-                if label == "weekly_busyness":
-                    firm_busyness = values[0]
-                    overall_busyness = values[1]
-                    transfers_available = values[2]
-                    dist_id = self._get_dist_key(id)
-                    self.distributors[dist_id]["recent_weekly_busyness"] = firm_busyness
-                    self.overall_weekly_busyness = overall_busyness
-
-                if label == "accepted_order":
-                    pair = list(dic.items())[-1]
-                    prod_str = pair[0]
-                    prod_id = int(prod_str.split('_')[1])
-                    amt = pair[1]
-                    self.order_sizes[prod_id].append(amt)
 
                 if label == "transfer_request":
                     dist_id = self._get_dist_key(id)
@@ -655,6 +581,7 @@ class Overseer:
             "-r", str(self.settings["n_producers"]),
             "-d", str(self.settings["n_distributors"]),
             "-s", str(self.settings["daily_sick_chance"]),
+            "-a", str(self.settings["n_abilities"]),
             "-v", str(self.settings["person_ability_stddev"])
         ]
 

@@ -208,7 +208,7 @@ plans:
   plots:
     plans_in_progress:
       checkbox_name: Plans in Progress
-      toggled: true
+      toggled: false
       linestyle: solid
       linewidth: 1.5
       markersize: 6.0
@@ -226,7 +226,7 @@ plans:
       traj_key: goods_in_production
     reorder_attempts:
       checkbox_name: Reorder Attempts
-      toggled: true
+      toggled: false
       linestyle: dotted
       linewidth: 1.5
       markersize: 6.0
@@ -253,7 +253,7 @@ plans:
       traj_key: min_hrly_output
     long_run_actual_activity_levels:
       checkbox_name: Long Run Actual Activity Levels
-      toggled: true
+      toggled: false
       linestyle: dashed
       linewidth: 1.5
       markersize: 6.0
@@ -406,7 +406,7 @@ employment_histograms:
       gradient: None
       label_template: Employment in Sector {i}
       colors: [red, blue, green, purple, orange]
-      edgecolors: ['', '', '', '', '', black]
+      edgecolors: [black, black, black, black, black]
       histtype: bar
       align: left
   default_lims: [[-1.36005, 45.5246], [-9.07633, 4307.49]]
