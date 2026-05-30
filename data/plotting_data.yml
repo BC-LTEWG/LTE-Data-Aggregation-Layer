@@ -472,4 +472,16 @@ busyness:
       label_template: Average Busyness in Sector {i}
       colors: [red, blue, green, purple, orange]
       traj_key: sectoral_weekly_busyness
-  default_lims: [[-3.97061, 11473.9], [-0.0316163, 0.360612]]
+    busyness_histogram:
+      special: hist
+      checkbox_name: Busyness Histogram
+      toggled: false
+      dist: busyness_data
+      density: true
+      gradient: None
+      labels: [Busyness]
+      colors: [red]
+      edgecolors: [Black]
+      histtype: bar
+      align: left
+  default_lims: [[0.0, 0.2], [0.0, 10.0]]

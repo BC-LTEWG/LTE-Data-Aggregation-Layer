@@ -110,6 +110,7 @@ class Overseer:
         self.active_plans = {i: {"plans": 0, "quantity": 0, "actual_quantity": 0} for i in range(self.settings["n_products"])}
         self.reorder_requests = np.zeros(self.settings["n_products"])
         self.overall_busyness = 0
+        self.overall_busyness_data = []
         self.overall_weekly_busyness = 0
         self.long_run_employment_by_sector = np.zeros(self.settings["n_products"])
         self.long_run_sector_activity = np.zeros(self.settings["n_products"])
@@ -261,6 +262,7 @@ class Overseer:
                     overall_busyness = dic["societal_busyness"]
                     transfers_available = dic["max_workers_for_transfer"]
                     self.producers[id]["recent_busyness"] = firm_busyness
+                    self.overall_busyness_data.append(firm_busyness)
                     self.overall_busyness = overall_busyness
 
                 if label == "accepted_order":
@@ -335,6 +337,7 @@ class Overseer:
                     transfers_available = dic["max_workers_for_transfer"]
                     dist_id = self._get_dist_key(id)
                     self.distributors[dist_id]["recent_busyness"] = firm_busyness
+                    self.overall_busyness_data.append(firm_busyness)
                     self.overall_busyness = overall_busyness
 
                 if label == "transfer_request":
@@ -378,9 +381,15 @@ class Overseer:
 
         sectoral_employment = self._get_available_employment_by_sector(self.producers)
         sectoral_busyness = self._get_sectoral_busyness(self.producers)
-        sectoral_weekly_busyness = self._get_sectoral_busyness(self.producers, weekly= True)
 
         order_size_averages = np.array([np.average(orders) for orders in self.order_sizes])
+
+        busyness_data = np.asarray(self.overall_busyness_data)
+        if len(self.overall_busyness_data) > 0:
+            low, hi = np.quantile(busyness_data, [0.005, 0.995])
+            overall_busyness_bins = np.linspace(low, hi, 100)
+        else:
+            overall_busyness_bins = np.array([0.5])
 
         self.long_run_employment_by_sector += sectoral_employment
 
@@ -416,8 +425,8 @@ class Overseer:
         self.traj["available_employment_by_sector"] = Append(sectoral_employment)
         self.traj["sectoral_busyness"] = Append(sectoral_busyness)
         self.traj["overall_busyness"] = Append(self.overall_busyness)
-        self.traj["sectoral_weekly_busyness"] = Append(sectoral_weekly_busyness)
-        self.traj["overall_weekly_busyness"] = Append(self.overall_weekly_busyness)
+        self.traj["busyness_data"] = Replace(self.overall_busyness_data)
+        self.traj["overall_busyness_bins"] = Replace(overall_busyness_bins)
         self.traj["order_sizes"] = Append(order_size_averages)
         self.traj["l"] = Append(self.l)
         self.traj["transfer_requests_by_sector"] = Append(self.transfer_requests_by_sector)
@@ -443,7 +452,7 @@ class Overseer:
         # omega = 8*5 / (24*7)
 
         self.eqb_employment = sectoral_weekly_labor_req / (8*5)
-        self.busy_lower_bd = 0.7*(8*5 / (24*7))
+        self.busy_lower_bd = 0.6*(8*5 / (24*7))
         self.busy_upper_bd = (8*5 / (24*7))
         self.min_hrly_output = min_hrly_output
         self.values = copy.deepcopy(self.prices)
