@@ -14,4 +14,5 @@ class Params:
     T: int = 8
     S: float = 0.01
     v_ability: float = 0.0005
+    N_a: int = 5
     is_logging: bool = False

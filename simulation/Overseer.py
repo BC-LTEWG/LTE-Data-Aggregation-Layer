@@ -42,9 +42,9 @@ class Overseer:
             "init_working_week": params.W,
             "daily_sick_chance": params.S,
             "person_ability_stddev": params.v_ability,
-            "n_abilities": 3, # needs to be a parameter
+            "n_abilities": params.N_a,
             # the rest of these are dependent variables
-            "n_products": params.N_c + params.N_c // params.m_r,
+            "n_products": 2 * params.N_c + params.N_c // params.m_r,
         }
 
         reasonable_logs = params.N_c < 10 and params.N_S <= 3000 and params.N_h < 100
@@ -69,7 +69,7 @@ class Overseer:
 
         self.persons = {i: {
             "account": 0,
-            "endowment": np.zeros(self.settings["n_commodities"]),
+            "endowment": np.zeros(self.settings["n_products"]),
             "abilities": np.zeros(self.settings["n_abilities"]),
             "health": "Healthy", # everyone starts in good health
             "recent_busyness": 0.0
@@ -581,6 +581,7 @@ class Overseer:
             "-r", str(self.settings["n_producers"]),
             "-d", str(self.settings["n_distributors"]),
             "-s", str(self.settings["daily_sick_chance"]),
+            "-a", str(self.settings["n_abilities"]),
             "-v", str(self.settings["person_ability_stddev"])
         ]
 
