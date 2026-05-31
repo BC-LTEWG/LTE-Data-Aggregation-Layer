@@ -9,6 +9,8 @@ import subprocess
 import json
 from scipy.linalg import inv
 
+print("hello?")
+
 # REPLACE WITH THE FILE PATH TO YOUR OWN BINARY. IF USING WINDOWS, MAKE SURE YOU USE DOUBLE FORWARD SLASHES (e.g. C:\\Users\\...)
 # devin
 EXE_PATH = "/home/alex/github/Labor-Time-Economy-Simulation/bin/sim"

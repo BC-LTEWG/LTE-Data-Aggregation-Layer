@@ -98,3 +98,29 @@ row4:
     label: 'Logging: '
     tooltip: Whether to log data to a file. Automatically vetoed if overseer deems
       the projected filesize to be unreasonably large.
+row5:
+  productivity:
+    param_name: productivity
+    control_type: entry_block
+    type: scalar
+    scalar_type: float
+    range: [0.0, 1.0]
+    label: $\epsilon_A=$
+    tooltip: Product input epsilon. Degree of productivity in society.
+  consump_epsilon:
+    param_name: consump_epsilon
+    control_type: entry_block
+    type: scalar
+    scalar_type: float
+    range: [0.0, 1.0]
+    label: $\epsilon_c=$
+    tooltip: ''
+row6:
+  init_prices:
+    control_type: dropdown
+    label: Initial Prices
+    tooltip: ''
+    param_name: init_prices
+    names: [Labor Values, Equilibrium Prices]
+    values: [labor_values, equilibrium_prices]
+    use_names_func: false

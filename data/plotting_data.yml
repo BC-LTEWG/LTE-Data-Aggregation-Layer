@@ -7,33 +7,60 @@ prices:
   ticks_visible: true
   frame_visible: true
   plots:
-    prices:
-      checkbox_name: Prices
+    producer_goods_prices:
+      checkbox_name: Producer Goods Prices
       toggled: true
       linestyle: solid
       linewidth: 1.5
       markersize: 6.0
       label_template: Price of {i}
       colors: [red, blue, green, purple, orange]
-      traj_key: prices
-    values:
-      checkbox_name: Values
+      traj_key: producer_goods_prices
+    producer_goods_values:
+      checkbox_name: Producer Goods Values
       toggled: true
       linestyle: dashed
       linewidth: 1.5
       markersize: 6.0
       label_template: Value of {i}
       colors: [red, blue, green, purple, orange]
-      traj_key: values
-    average_order_sizes:
-      checkbox_name: Average Order Sizes
+      traj_key: producer_goods_values
+    consumption_goods_prices:
+      checkbox_name: Consumption Goods Prices
       toggled: false
-      linestyle: dotted
+      linestyle: solid
       linewidth: 1.5
       markersize: 6.0
-      label_template: Average Order Size of {i}
+      label_template: Price of Consumer Product {i}
       colors: [red, blue, green, purple, orange]
-      traj_key: order_sizes
+      traj_key: consumption_goods_prices
+    consumption_goods_values:
+      checkbox_name: Consumption Goods Values
+      toggled: false
+      linestyle: dashed
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Price of Consumer Product {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: consumption_goods_values
+    machine_prices:
+      checkbox_name: Machine Prices
+      toggled: false
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Price of Machine {i}
+      colors: ['']
+      traj_key: machine_prices
+    machine_values:
+      checkbox_name: Machine Values
+      toggled: false
+      linestyle: dashed
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Price of Machine {i}
+      colors: ['']
+      traj_key: machine_values
     living_labor_values:
       checkbox_name: Living Labor Values
       toggled: false
@@ -43,6 +70,15 @@ prices:
       label_template: Living Labor per Unit for {i}
       colors: [red, blue, green, purple, orange]
       traj_key: l
+    average_order_sizes:
+      checkbox_name: Average Order Sizes
+      toggled: false
+      linestyle: dotted
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Average Order Size of {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: order_sizes
   default_lims: [[-3.97061, 11473.9], [-0.0316163, 0.360612]]
 inventory:
   name: Inventory
@@ -52,24 +88,42 @@ inventory:
   ticks_visible: true
   frame_visible: true
   plots:
-    supply:
-      checkbox_name: Supply
+    producer_supply:
+      checkbox_name: Producer Supply
       toggled: true
       linestyle: solid
       linewidth: 1.5
       markersize: 6.0
-      label_template: Supply of {i}
+      label_template: Producer Supply of {i}
       colors: [red, blue, green, purple, orange]
-      traj_key: supply
-    distributor_supply:
-      checkbox_name: Distributor Supply
+      traj_key: producer_supply
+    consumer_goods_supply:
+      checkbox_name: Consumer Goods Supply
       toggled: true
+      linestyle: dashed
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Supply of Consumer Good {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: consumer_goods_supply
+    supply_of_machines:
+      checkbox_name: Supply of Machines
+      toggled: false
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Supply of Machine {i}
+      colors: ['']
+      traj_key: producer_supply_machines
+    distributor_supply_unshelved:
+      checkbox_name: Distributor Supply (Unshelved)
+      toggled: false
       linestyle: dotted
       linewidth: 1.5
       markersize: 6.0
-      label_template: Distributor Supply of {i}
+      label_template: Distributor Supply of {i} (Unshelved)
       colors: [red, blue, green, purple, orange]
-      traj_key: accessible_supply
+      traj_key: distributor_unshelved_supply
     average_personal_endowments:
       checkbox_name: Average Personal Endowments
       toggled: false
@@ -389,6 +443,16 @@ consumption_initialization:
       label_template: Consumption Period for {i}
       colors: [red, blue, green, purple, orange]
       traj_key: mean_consumption_periods
+    pre_revolution_consumption_frequencies:
+      checkbox_name: Pre-Revolution Consumption Frequencies
+      toggled: false
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Pre-Revolution Consumption Frequency of {i}
+      colors: [red, blue, green, orange, purple]
+      traj_key: b
+  default_lims: [[0.969968, 68.9784], [-0.00382333, 0.0235336]]
 employment_histograms:
   name: Employment Histograms
   projection: 2d
@@ -427,15 +491,6 @@ busyness:
       labels: [Societal Busyness]
       colors: ['#ff11d3']
       traj_key: overall_busyness
-    overall_weekly_busyness:
-      checkbox_name: Overall Weekly Busyness
-      toggled: true
-      linestyle: dashed
-      linewidth: 1.5
-      markersize: 6.0
-      labels: [Societal Busyness]
-      colors: ['#ff11d3']
-      traj_key: overall_weekly_busyness
     min_reproductive_busyness:
       checkbox_name: Min Reproductive Busyness
       toggled: true
@@ -463,15 +518,6 @@ busyness:
       label_template: Average Busyness in Sector {i}
       colors: [red, blue, green, purple, orange]
       traj_key: sectoral_busyness
-    sectoral_weekly_busyness:
-      checkbox_name: Sectoral Weekly Busyness
-      toggled: true
-      linestyle: dashed
-      linewidth: 1.5
-      markersize: 6.0
-      label_template: Average Busyness in Sector {i}
-      colors: [red, blue, green, purple, orange]
-      traj_key: sectoral_weekly_busyness
     busyness_histogram:
       special: hist
       checkbox_name: Busyness Histogram
@@ -484,4 +530,4 @@ busyness:
       edgecolors: [Black]
       histtype: bar
       align: left
-  default_lims: [[0.0, 0.2], [0.0, 10.0]]
+  default_lims: [[-34.6118, 27984.9], [-0.0651938, 0.436073]]
