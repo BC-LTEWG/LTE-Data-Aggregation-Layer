@@ -278,7 +278,10 @@ class Overseer:
                 if label == "transfer":
                     old_emp = dic["old_workplace_id"]
                     new_emp = dic["new_workplace_id"]
-                    self.producers[old_emp]["employees"] -= 1
+                    if old_emp < self.settings["n_producers"]:
+                        self.producers[old_emp]["employees"] -= 1
+                    else:
+                        self.distributors[self._get_dist_key(old_emp)]["employees"] -= 1
                     self.producers[new_emp]["employees"] += 1
 
             case "Distributor":
@@ -344,6 +347,15 @@ class Overseer:
                         self.transfer_requests_by_sector[i] +=  1
                         if len(self.transfer_requests_by_sector_t) == 0 or self.current_t != self.transfer_requests_by_sector_t[-1]:
                             self.transfer_requests_by_sector_t = np.append(self.transfer_requests_by_sector_t, self.current_t)
+
+                if label == "transfer":
+                    old_emp = dic["old_workplace_id"]
+                    new_emp = dic["new_workplace_id"]
+                    if old_emp < self.settings["n_producers"]:
+                        self.producers[old_emp]["employees"] -= 1
+                    else:
+                        self.distributors[self._get_dist_key(old_emp)]["employees"] -= 1
+                    self.distributors[self._get_dist_key(new_emp)]["employees"] += 1
 
     def _update_hourly_stats(self):
         """ 
@@ -576,7 +588,7 @@ class Overseer:
             "-p", str(self.settings["n_persons"]),
             "-h", str(self.settings["init_working_day"]),
             "-w", str(self.settings["init_working_week"]),
-            "-o", str(self.settings["n_commodities"]),
+            "-g", str(self.settings["n_commodities"]),
             "-m", str(self.settings["prods_per_machine"]),
             "-r", str(self.settings["n_producers"]),
             "-d", str(self.settings["n_distributors"]),
