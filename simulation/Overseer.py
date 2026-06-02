@@ -9,6 +9,12 @@ import math
 import copy
 from overseer.tools.dataclasses import Replace, Extend, Append
 
+np.set_printoptions(
+    precision=3,      # digits after decimal-ish
+    suppress=True,    # avoid scientific notation when possible
+    linewidth=200     # avoid wrapping rows too early
+)
+
 class Overseer:
     """ The guy who watches the LTE and keeps track of the data. """
     def __init__(self, bin_path, params, log_path_str: str | None = None):
@@ -106,14 +112,13 @@ class Overseer:
         self.order_sizes = [[] for i in range(self.settings["n_products"])]
         self.transfer_requests_by_sector = np.zeros(self.settings["n_products"])
         self.transfer_requests_by_sector_t = np.array([])
-        self.active_plans = {i: {"plans": 0, "quantity": 0, "actual_quantity": 0} for i in range(self.settings["n_products"])}
+        self.active_plans = {i: {"plans": 0, "quantity": 0} for i in range(self.settings["n_products"])}
         self.reorder_requests = np.zeros(self.settings["n_products"])
         self.overall_busyness = 0
         self.overall_busyness_data = []
         self.overall_weekly_busyness = 0
-        self.long_run_employment_by_sector = np.zeros(self.settings["n_produced_goods"]+1)
+        self.long_run_employment_by_sector = np.zeros(self.settings["n_produced_goods"]+self.settings["n_machines"]+1)
         self.long_run_sector_activity = np.zeros(self.settings["n_products"])
-        self.long_run_actual_sector_activity = np.zeros(self.settings["n_products"])
 
     def _process_dic(self, dic):
         """ 
@@ -132,8 +137,6 @@ class Overseer:
                     i, j = coords
                     a_ij = dic["value"]
                     self.A[i][j] = a_ij
-
-
 
                 if label == "l":
                     i = dic["prod_id"]
@@ -214,11 +217,9 @@ class Overseer:
                     amt = dic["amount"]
                     # distributor_inventories[id-n_producers][prod_id] -= amt
 
-                if label == "catalog":
-                    product_ids_str = dic["product_ids"]
-                    product_ids_str_list = product_ids_str.split(",")
-                    product_ids = [int(product_id) for product_id in product_ids_str_list]
-                    self.producers[id]["catalog"].extend(product_ids)
+                if label == "catalog_addition":
+                    product_id = dic["product_id"]
+                    self.producers[id]["catalog"].append(product_id)
 
                 if label == "pursued_plan":
                     producer_id = id
@@ -229,13 +230,10 @@ class Overseer:
                     prod_id = dic["product_id"]
                     amt = dic["quantity"]
                     n_workers = dic["num_workers"]
-                    actual_amt = self.get_expected_quantity(prod_id, amt, n_workers)
 
                     self.active_plans[prod_id]["plans"] += 1
                     self.active_plans[prod_id]["quantity"] += amt
-                    self.active_plans[prod_id]["actual_quantity"] += actual_amt
                     self.long_run_sector_activity[prod_id] += amt
-                    self.long_run_actual_sector_activity[prod_id] += actual_amt
 
                     if is_distributor:
                         self.distributors[customer_id]["inc_inventory"][prod_id] += amt
@@ -258,7 +256,7 @@ class Overseer:
                     demand = dic["demand"]
                     self.producers[id]["demand_signals"][prod_id] = demand
 
-                if label in {"reorder" "reorder_failure"}:
+                if label in {"reorder", "reorder_failure"}:
                     prod_id = dic["product_id"]
                     amt = dic["amount"]
                     self.reorder_requests[prod_id] += 1
@@ -288,9 +286,20 @@ class Overseer:
 
                 if label == "transfer":
                     old_emp = dic["old_workplace_id"]
+                    old_emp_is_distributor = (old_emp >= self.settings["n_producers"])
+                    if old_emp_is_distributor:
+                        old_emp = self._get_dist_key(old_emp)
+                        self.distributors[old_emp]["employees"] -= 1
+                    else:
+                        self.producers[old_emp]["employees"] -= 1
+
                     new_emp = dic["new_workplace_id"]
-                    self.producers[old_emp]["employees"] -= 1
-                    self.producers[new_emp]["employees"] += 1
+                    new_emp_is_distributor = (new_emp >= self.settings["n_producers"])
+                    if new_emp_is_distributor:
+                        new_emp = self._get_dist_key(new_emp)
+                        self.distributors[new_emp]["employees"] += 1
+                    else:
+                        self.producers[new_emp]["employees"] += 1
 
             case "Distributor":
                 if label == "inventory_level":
@@ -310,7 +319,7 @@ class Overseer:
                     product_ids_str_list = product_ids_str.split(",")
                     product_ids = [int(product_id) for product_id in product_ids_str_list]
                     dist_key = self._get_dist_key(id)
-                    self.distributors[dist_key]["catalog"].extend(product_ids)
+                    self.distributors[dist_key]["catalog"] = product_ids
 
                 if label == "accepted_order":
                     prod_id = dic["product_id"]
@@ -322,6 +331,11 @@ class Overseer:
                     amt = dic["amount"]
                     dist_id = self._get_dist_key(id)
                     self.distributors[dist_id]["inc_inventory"][prod_id] -= amt
+
+                if label == "catalog_addition":
+                    prod_id = dic["product_id"]
+                    dist_id = self._get_dist_key(id)
+                    self.distributors[dist_id]["catalog"].append(prod_id)
 
                 if label == "current_demand":
                     prod_id = dic["product_id"]
@@ -341,11 +355,27 @@ class Overseer:
                 if label == "busyness":
                     firm_busyness = dic["firm_busyness"]
                     overall_busyness = dic["societal_busyness"]
-                    transfers_available = dic["max_workers_for_transfer"]
                     dist_id = self._get_dist_key(id)
                     self.distributors[dist_id]["recent_busyness"] = firm_busyness
                     self.overall_busyness_data.append(firm_busyness)
                     self.overall_busyness = overall_busyness
+
+                if label == "transfer":
+                    old_emp = dic["old_workplace_id"]
+                    old_emp_is_distributor = (old_emp >= self.settings["n_producers"])
+                    if old_emp_is_distributor:
+                        old_emp = self._get_dist_key(old_emp)
+                        self.distributors[old_emp]["employees"] -= 1
+                    else:
+                        self.producers[old_emp]["employees"] -= 1
+
+                    new_emp = dic["new_workplace_id"]
+                    new_emp_is_distributor = (new_emp >= self.settings["n_producers"])
+                    if new_emp_is_distributor:
+                        new_emp = self._get_dist_key(new_emp)
+                        self.distributors[new_emp]["employees"] += 1
+                    else:
+                        self.producers[new_emp]["employees"] += 1
 
                 if label == "transfer_request":
                     dist_id = self._get_dist_key(id)
@@ -384,7 +414,6 @@ class Overseer:
 
         plans_in_motion = [self.active_plans[i]["plans"] for i in range(self.settings["n_products"])]
         quantities_in_prod = [self.active_plans[i]["quantity"] for i in range(self.settings["n_products"])]
-        actual_quantities_in_prod = [self.active_plans[i]["actual_quantity"] for i in range(self.settings["n_products"])]
 
         sectoral_employment = self._get_available_employment_by_sector()
         sectoral_busyness = self._get_sectoral_busyness()
@@ -423,7 +452,6 @@ class Overseer:
             "avg_endowments": Append(average_endowments),
             "plans_in_progress": Append(plans_in_motion),
             "goods_in_production": Append(quantities_in_prod),
-            "actual_goods_in_production": Append(actual_quantities_in_prod),
             "n_healthy": Append(n_healthy),
             "n_unhealthy": Append(n_unhealthy),
             "average_proficiencies": Append(average_proficiencies),
@@ -451,7 +479,6 @@ class Overseer:
             "busy_lower_bound": Append(self.busy_lower_bd),
             "busy_upper_bound": Append(self.busy_upper_bd),
             "long_run_activity": Append(self.long_run_sector_activity / max(self.current_t, 1)),
-            "long_run_actual_activity": Append(self.long_run_actual_sector_activity / max(self.current_t, 1)),
             "transfer_requests_by_sector_t": Replace(self.transfer_requests_by_sector_t),
         }
 
@@ -460,25 +487,31 @@ class Overseer:
 
     def initialize_properties(self):
         N = self.settings["n_persons"]
+        logger.info(f"{self.consumption_frequencies=}")
         net_weekly_demand = N*24*7*self.consumption_frequencies
         gross_weekly_demand = inv(np.eye(self.settings["n_products"]) - self.A)@net_weekly_demand
         sectoral_weekly_labor_req_raw = self.l * gross_weekly_demand
-        sectoral_weekly_labor_req = list(sectoral_weekly_labor_req_raw[0:self.settings["n_produced_goods"]])
+        prod_goods_sectoral_weekly_labor_req = list(sectoral_weekly_labor_req_raw[0:self.settings["n_produced_goods"]])
+        machine_sectoral_weekly_labor_req = list(sectoral_weekly_labor_req_raw[2*self.settings["n_produced_goods"]:])
+
+        overall_sectoral_weekly_labor_req = []
 
         lo = self.settings["n_produced_goods"]
         hi = 2*self.settings["n_produced_goods"]
-        sectoral_weekly_labor_req.append(sum(sectoral_weekly_labor_req_raw[lo:hi]))
-        sectoral_weekly_labor_req = np.asarray(sectoral_weekly_labor_req)
+        overall_sectoral_weekly_labor_req.extend(prod_goods_sectoral_weekly_labor_req)
+        overall_sectoral_weekly_labor_req.append(sum(sectoral_weekly_labor_req_raw[lo:hi]))
+        overall_sectoral_weekly_labor_req.extend(machine_sectoral_weekly_labor_req)
+        overall_sectoral_weekly_labor_req = np.asarray(overall_sectoral_weekly_labor_req)
         min_hrly_output = gross_weekly_demand / (24*7)
-        # gross_hrly_consumption = inv(np.eye(self.settings["n_products"])-self.A)@self.consumption_frequencies
-        # omega = 8*5 / (24*7)
 
-        self.eqb_employment = sectoral_weekly_labor_req / (8*5)
+        self.eqb_employment = overall_sectoral_weekly_labor_req / (8*5)
         self.busy_lower_bd = self.settings["consump_epsilon"]*(8*5 / (24*7))
         self.busy_upper_bd = (8*5 / (24*7))
         self.min_hrly_output = min_hrly_output
         dim = self.A.shape[0]
         self.values = inv(np.eye(dim) - self.A.T)@self.l
+        logger.info(f"A =\n {self.A}, l=\n{self.l}")
+        logger.info(f"values = {self.values=}")
 
         (evals, evecs) = eig(self.A)
         idx = np.argmax(evals.real)
@@ -572,15 +605,15 @@ class Overseer:
             "-p", str(self.settings["n_persons"]),
             "-h", str(self.settings["init_working_day"]),
             "-w", str(self.settings["init_working_week"]),
-            "-o", str(self.settings["n_commodities"]),
+            "-g", str(self.settings["n_commodities"]),
             "-m", str(self.settings["prods_per_machine"]),
             "-r", str(self.settings["n_producers"]),
             "-d", str(self.settings["n_distributors"]),
             "-s", str(self.settings["daily_sick_chance"]),
-            # "-a", str(self.settings["n_abilities"]),
+            "-a", str(self.settings["n_abilities"]),
             "-v", str(self.settings["person_ability_stddev"]),
-            "--productivity", str(self.settings["productivity"]),
-            "--consump_epsilon", str(self.settings["consump_epsilon"]),
+            "--production_difficulty", str(self.settings["productivity"]),
+            "--consumption_demand", str(self.settings["consump_epsilon"]),
             "--init_prices", str(self.settings["init_prices"])
         ]
 
@@ -641,13 +674,19 @@ class Overseer:
         return supply
 
     def _get_average_endowments(self, persons):
+
+        n_prod_goods = self.settings["n_produced_goods"]
+        idx_low = n_prod_goods
+        idx_high = 2*n_prod_goods
+        consumer_goods_idxs = list(range(idx_low, idx_high))
+
         n_commodities = self.settings["n_commodities"]
 
         endowments = [dic["endowment"] for _,dic in persons.items()]
-        itemwise_endowments = [[] for i in range(n_commodities)]
-        for i in range(n_commodities):
+        itemwise_endowments = [[] for i in range(n_prod_goods)]
+        for i, idx in enumerate(consumer_goods_idxs):
             for j in range(len(persons)):
-                itemwise_endowments[i].append(endowments[j][i])
+                itemwise_endowments[i].append(endowments[j][idx])
 
         average_endowments = [np.average(itemwise_endowments[i]) for i in range(n_commodities)]
         return average_endowments
@@ -666,14 +705,18 @@ class Overseer:
         return average_proficiencies
 
     def _get_available_employment_by_sector(self):
-        n_sectors = self.settings["n_produced_goods"]+1
+        n_sectors = self.settings["n_produced_goods"]+self.settings["n_machines"]+1
 
         sectoral_employment = np.zeros(n_sectors)
         for properties in self.producers.values():
             cat = properties["catalog"]
             employees = properties["employees"]
             for prod_id in cat:
-                sectoral_employment[prod_id] += employees
+                if prod_id >= 2*self.settings["n_produced_goods"]:
+                    machine_id = prod_id - self.settings["n_produced_goods"]
+                    sectoral_employment[machine_id] += employees
+                else:
+                    sectoral_employment[prod_id] += employees
 
         for properties in self.distributors.values():
             sectoral_employment[n_sectors-1] += properties["employees"]
@@ -681,14 +724,18 @@ class Overseer:
         return sectoral_employment
 
     def _get_sectoral_busyness(self):
-        n_sectors = self.settings["n_produced_goods"]+1
+        n_sectors = self.settings["n_produced_goods"]+self.settings["n_machines"]+1
 
         sectoral_busyness_data = [[] for _ in range(n_sectors)]
         for properties in self.producers.values():
             cat = properties["catalog"]
             busyness = properties["recent_busyness"]
             for prod_id in cat:
-                sectoral_busyness_data[prod_id].append(busyness)
+                if prod_id >= 2*self.settings["n_produced_goods"]:
+                    machine_id = prod_id - self.settings["n_produced_goods"]
+                    sectoral_busyness_data[machine_id].append(busyness)
+                else:
+                    sectoral_busyness_data[prod_id].append(busyness)
 
         for properties in self.distributors.values():
             sectoral_busyness_data[n_sectors-1].append(properties["recent_busyness"])
@@ -706,12 +753,6 @@ class Overseer:
             average_demands[j] = np.average(total_demand_j)
 
         return average_demands
-
-    def _update_data(self, key, val):
-        if isinstance(val, np.ndarray) or isinstance(val, list):
-            self.traj[key] = np.append(self.traj[key], [val], axis= 0)
-        else:
-            self.traj[key] = np.append(self.traj[key], val)
 
     def _get_dist_key(self, dist_id):
         return dist_id - self.settings["n_producers"]

@@ -37,7 +37,7 @@ prices:
     consumption_goods_values:
       checkbox_name: Consumption Goods Values
       toggled: false
-      linestyle: dashed
+      linestyle: dotted
       linewidth: 1.5
       markersize: 6.0
       label_template: Price of Consumer Product {i}
