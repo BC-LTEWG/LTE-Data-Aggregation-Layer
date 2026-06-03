@@ -49,7 +49,7 @@ class Overseer:
             "n_abilities": params.N_a,
             "productivity": params.productivity,
             "consump_epsilon": params.consump_epsilon,
-            # the rest of these are dependent variables
+            # the rest of these are d if pending_inventory_j else 0ependent variables
             "n_produced_goods": params.N_c,
             "n_machines": params.N_c // params.m_r,
             "n_products": 2 * params.N_c + params.N_c // params.m_r,
@@ -313,6 +313,7 @@ class Overseer:
                     prod_id = dic["product_id"]
                     amt = dic["amount"]
                     dist_key = self._get_dist_key(id)
+                    self.distributors[dist_key]["inventory"][prod_id] -= amt
 
                 if label == "catalog":
                     product_ids_str = dic["product_ids"]
@@ -330,7 +331,7 @@ class Overseer:
                     prod_id = dic["product_id"]
                     amt = dic["amount"]
                     dist_id = self._get_dist_key(id)
-                    self.distributors[dist_id]["inc_inventory"][prod_id] -= amt
+                    self.distributors[dist_id]["inc_inventory"][prod_id] += amt
 
                 if label == "catalog_addition":
                     prod_id = dic["product_id"]
@@ -395,14 +396,18 @@ class Overseer:
         consumer_goods_supply = self._get_distributor_supply()
         distributor_unshelved_supply = self._get_distributor_supply(produced= True)
 
-        average_demands = self._get_average(self.producers, self.distributors, key= "demand_signals")
-        average_demands_producers = self._get_average(self.producers, key= "demand_signals")
-        average_demands_distributors = self._get_average(self.distributors, key= "demand_signals")
+        average_demands = self._get_overall_demand()
+        if self.current_t == 10:
+            print(f"{average_demands=}")
+        average_demands_producers = self._get_producer_demands()
+        average_machine_demand = self._get_producer_demands(machines= True)
+        average_demands_distributors = self._get_distributor_demands(produced= False)
 
         self._set_pending_inventories()
-        average_pending_inventories_all = self._get_average(self.producers, self.distributors, key= "pending_inventory")
-        average_pending_inventories_producers_all = self._get_average(self.producers, key= "pending_inventory")
-        average_pending_inventories_distributors_all = self._get_average(self.distributors, key= "pending_inventory")
+        average_pending_inventories_all = self._get_overall_pending_inventory()
+        average_pending_inventories_distributors = self._get_distributor_pending_inventories(produced= True)
+        average_pending_inventories_producers = self._get_producer_pending_inventories()
+        average_pending_inventories_consumption = self._get_distributor_pending_inventories()
 
         accounts = [dic["account"] for _, dic in self.persons.items()]
         health_statuses = [0 if dic["health"] == "Healthy" else 1 for _, dic in self.persons.items()]
@@ -458,12 +463,17 @@ class Overseer:
             "employment": Append(self.current_employment),
             "mean_consumption_frequencies": Append(self.consumption_frequencies),
             "mean_consumption_periods": Append(self.consumption_periods),
+
             "average_demand": Append(average_demands),
+            "average_machine_demand": Append(average_machine_demand),
             "average_demand_producers": Append(average_demands_producers),
             "average_demand_distributors": Append(average_demands_distributors),
+
             "average_pending_inventories": Append(average_pending_inventories_all),
-            "average_pending_inventories_distributors": Append(average_pending_inventories_distributors_all),
-            "average_pending_inventories_producers": Append(average_pending_inventories_producers_all),
+            "average_pending_inventories_distributors": Append(average_pending_inventories_distributors),
+            "average_pending_inventories_producers": Append(average_pending_inventories_producers),
+            "average_pending_inventories_consumption": Append(average_pending_inventories_consumption),
+
             "reorder_requests": Append(self.reorder_requests),
             "available_employment_by_sector": Append(sectoral_employment),
             "sectoral_busyness": Append(sectoral_busyness),
@@ -480,6 +490,7 @@ class Overseer:
             "busy_upper_bound": Append(self.busy_upper_bd),
             "long_run_activity": Append(self.long_run_sector_activity / max(self.current_t, 1)),
             "transfer_requests_by_sector_t": Replace(self.transfer_requests_by_sector_t),
+            "A": Replace(self.A)
         }
 
         self.transfer_requests_by_sector = np.zeros(self.settings["n_products"])
@@ -655,20 +666,115 @@ class Overseer:
 
         return supply
 
-    def _get_supply(self, distributors, producers= None, micro= False):
+    def _get_producer_demands(self, machines= False):
+        n_prod_goods = self.settings["n_produced_goods"]
+        if machines:
+            idx_low = 2*n_prod_goods
+            idx_high = self.settings["n_products"]
+        else:
+            idx_low = 0
+            idx_high = n_prod_goods
+
+        average_demands = np.zeros(self.settings["n_machines"]) if machines else np.zeros(self.settings["n_produced_goods"])
+        idx_list = list(range(idx_low, idx_high))
+        for i, j in enumerate(idx_list):
+            total_demand_j = [producer_dict["demand_signals"][j] for producer_dict in self.producers.values() if j in producer_dict["catalog"]]
+            average_demands[i] = np.average(total_demand_j) if total_demand_j else 0
+
+        return average_demands
+
+    def _get_producer_pending_inventories(self, machines= False):
+        n_prod_goods = self.settings["n_produced_goods"]
+        if machines:
+            idx_low = 2*n_prod_goods
+            idx_high = self.settings["n_products"]
+        else:
+            idx_low = 0
+            idx_high = n_prod_goods
+
+        average_pending_inventories = np.zeros(self.settings["n_machines"]) if machines else np.zeros(self.settings["n_produced_goods"])
+        idx_list = list(range(idx_low, idx_high))
+        for i, j in enumerate(idx_list):
+            pending_inventory_j = [producer_dict["pending_inventory"][j] for producer_dict in self.producers.values() if j in producer_dict["catalog"]]
+            average_pending_inventories[i] = np.average(pending_inventory_j) if pending_inventory_j else 0
+
+        return average_pending_inventories
+
+    def _get_distributor_demands(self, produced= False):
+        n_prod_goods = self.settings["n_produced_goods"]
+        if produced:
+            idx_low = 0
+            idx_high = n_prod_goods
+        else:
+            idx_low = n_prod_goods
+            idx_high = 2*n_prod_goods
+
+        average_demands = np.zeros(self.settings["n_produced_goods"])
+        if self.current_t == 10 and produced:
+            print(f"{average_demands}")
+        idx_list = list(range(idx_low, idx_high))
+        for i,j in enumerate(idx_list):
+            total_demand_j = [dist_dict["demand_signals"][j] for dist_dict in self.distributors.values() if j in dist_dict["catalog"]]
+            if self.current_t == 10 and produced:
+                print(f"{total_demand_j=}")
+            average_demands[i] = np.average(total_demand_j) if total_demand_j else 0
+
+        return average_demands
+
+    def _get_distributor_pending_inventories(self, produced= False):
+        n_prod_goods = self.settings["n_produced_goods"]
+        if produced:
+            idx_low = 0
+            idx_high = n_prod_goods
+        else:
+            idx_low = n_prod_goods
+            idx_high = 2*n_prod_goods
+
+        average_pending_inventories = np.zeros(self.settings["n_produced_goods"])
+        idx_list = list(range(idx_low, idx_high))
+        for i,j in enumerate(idx_list):
+            pending_inventory_j = [dist_dict["pending_inventory"][j] for dist_dict in self.distributors.values() if j in dist_dict["catalog"]]
+            average_pending_inventories[i] = np.average(pending_inventory_j) if pending_inventory_j else 0
+
+        return average_pending_inventories
+
+    def _get_overall_demand(self):
+        average_demands_producers = self._get_producer_demands(machines= False)
+        average_demands_distributors = self._get_distributor_demands(produced= True)
+        if self.current_t == 10:
+            print(f"{average_demands_producers=}")
+            print(f"{average_demands_distributors=}")
+        return average_demands_producers + average_demands_distributors
+
+    def _get_overall_pending_inventory(self):
+        average_pending_inventory_producers = self._get_producer_pending_inventories(machines= False)
+        average_pending_inventories_distributors = self._get_distributor_pending_inventories(produced= True)
+        return average_pending_inventory_producers + average_pending_inventories_distributors
+
+    def _get_average(self, *firms, key= "demand_signals"):
+        n_products = self.settings["n_products"]
+        average_demands = np.zeros(n_products)
+        for j in range(n_products):
+            total_demand_j = []
+            for firm_group in firms:
+                total_demand_j += [firm_group[firm][key][j] for firm in firm_group if j in firm_group[firm]["catalog"]]
+            average_demands[j] = np.average(total_demand_j)
+
+        return average_demands
+
+
+    def _get_supply(self, distributors, producers= None):
         n_products = self.settings["n_products"]
 
         supply = np.zeros(n_products)
-        key = "inventory"
-        key += "_micro" if micro else ""
 
         for properties in distributors.values():
-            inventory = properties[key]
+            inventory = properties["inventory"]
             supply += inventory
 
         if producers != None:
             for properties in producers.values():
-                inventory = properties[key]
+                inventory = properties["inventory"]
                 supply += inventory
 
         return supply
@@ -743,19 +849,6 @@ class Overseer:
         sectoral_busyness = np.array([np.average(sector) for sector in sectoral_busyness_data])
         return sectoral_busyness
 
-    def _get_average(self, *firms, key= "demand_signals"):
-        n_products = self.settings["n_products"]
-        average_demands = np.zeros(n_products)
-        for j in range(n_products):
-            total_demand_j = []
-            for firm_group in firms:
-                total_demand_j += [firm_group[firm][key][j] for firm in firm_group if j in firm_group[firm]["catalog"]]
-            average_demands[j] = np.average(total_demand_j)
-
-        return average_demands
-
-    def _get_dist_key(self, dist_id):
-        return dist_id - self.settings["n_producers"]
 
     def _set_pending_inventories(self):
         for _, producer_dict in self.producers.items():
@@ -775,66 +868,6 @@ class Overseer:
         else:
             return "production_good", id
 
-    def get_expected_quantity(self, prod_id, quantity, n_workers):
-        labor_hours_reqd = self.l[prod_id]*quantity
-        work_hours_done = math.ceil(labor_hours_reqd / n_workers)
-        quantity_produced = work_hours_done * n_workers / self.l[prod_id]
-        return quantity_produced
-
-    # def _declare_traj(self):
-    #     """ 
-    #     After time = 0 finishes, the trajectories dictionary is initialized from this function. You would need to add new ones to this if making your own.
-    #     """
-    #     n_prod_goods = self.settings["n_produced_goods"]
-    #     return {
-    #         # "prices": Append(self.prices),
-    #         "producer_goods_prices": Append(self.prices[:n_prod_goods]),
-    #         "consumption_goods_prices": Append(self.prices[n_prod_goods:2*n_prod_goods]),
-    #         "machine_price": Append(self.prices[2*n_prod_goods:]),
-    #         "values": Append(self.values),
-    #         "theoretical_values": Append(self._get_theoretical_values(self.A,self.l)),
-    #         "supply": Append(self._get_supply(self.distributors, self.producers)),
-    #         "accessible_supply": Append(self._get_supply(self.distributors)),
-    #         "accessible_supply_micro": Append(self._get_supply(self.distributors, micro= True)),
-    #         "avg_account": Append(np.average([dic["account"] for _, dic in self.persons.items()])),
-    #         "min_account": Append(np.min([dic["account"] for _, dic in self.persons.items()])),
-    #         "max_account": Append(np.max([dic["account"] for _, dic in self.persons.items()])),
-    #         "avg_turnover_times": Append(self.turnover_times),
-    #         "avg_endowments": Append(self._get_average_endowments(self.persons)),
-    #         "A": self.A,
-    #         "plans_in_progress": Append(np.zeros(self.settings["n_products"])),
-    #         "goods_in_production": Append(np.zeros(self.settings["n_products"])),
-    #         "actual_goods_in_production": Append(np.zeros(self.settings["n_products"])),
-    #         "n_healthy": Append(self.settings["n_persons"]),
-    #         "n_unhealthy": Append(0),
-    #         "average_proficiencies": Append(self._get_average_abilities(self.persons)),
-    #         "employment": Append(self.current_employment),
-    #         "mean_consumption_frequencies": Append(self.consumption_frequencies),
-    #         "mean_consumption_periods": Append(self.consumption_periods),
-    #         "average_demand": Append(self._get_average(self.producers, self.distributors, key= "demand_signals")),
-    #         "average_demand_producers": Append(self._get_average(self.producers, key= "demand_signals")),
-    #         "average_demand_distributors": Append(self._get_average(self.distributors, key= "demand_signals")),
-    #         "average_pending_inventories": Append(self._get_average(self.producers, self.distributors, key= "inventory")),
-    #         "average_pending_inventories_distributors": Append(self._get_average(self.distributors, key= "inventory")),
-    #         "average_pending_inventories_producers": Append(self._get_average(self.producers, key= "inventory")),
-    #         "reorder_requests": Append(self.reorder_requests),
-    #         "available_employment_by_sector": Append(self._get_available_employment_by_sector(self.producers)),
-    #         "long_run_employment_by_sector": Append(self._get_available_employment_by_sector(self.producers)),
-    #         "overall_busyness": Append(self.overall_busyness),
-    #         "sectoral_busyness": Append(self._get_sectoral_busyness(self.producers)),
-    #         "overall_weekly_busyness": Append(self.overall_weekly_busyness),
-    #         "sectoral_weekly_busyness": Append(self._get_sectoral_busyness(self.producers, weekly= True)),
-    #         "order_sizes": Append([np.average(orders) for orders in self.order_sizes]),
-    #         "l": Append(self.l),
-    #         "transfer_requests_by_sector": Append(self.transfer_requests_by_sector),
-    #         "transfer_requests_by_sector_t": Replace(self.transfer_requests_by_sector_t),
-    #         "eqb_employment": Append(self.eqb_employment),
-    #         "min_hrly_output": Append(self.min_hrly_output),
-    #         "busy_lower_bound": Append(self.busy_lower_bd),
-    #         "busy_upper_bound": Append(self.busy_upper_bd),
-    #         "long_run_activity": Append(self.long_run_sector_activity),
-    #         "long_run_actual_activity": Append(self.long_run_actual_sector_activity),
-    #         "t": Append(self.current_t)
-    #     }
-
+    def _get_dist_key(self, dist_id):
+        return dist_id - self.settings["n_producers"]
 

@@ -142,8 +142,8 @@ demand:
   ticks_visible: true
   frame_visible: true
   plots:
-    average_demand:
-      checkbox_name: Average Demand
+    demand_overall:
+      checkbox_name: Demand Overall
       toggled: true
       linestyle: solid
       linewidth: 1.5
@@ -151,17 +151,17 @@ demand:
       label_template: Average Demand for {i}
       colors: [red, blue, green, purple, orange]
       traj_key: average_demand
-    average_pending_inventory:
-      checkbox_name: Average Pending Inventory
+    overall_pending_inventories:
+      checkbox_name: Overall Pending Inventories
       toggled: true
       linestyle: dotted
       linewidth: 1.5
       markersize: 6.0
-      label_template: Average Pending Inventory for {i}
+      label_template: Pending Inventory for Produced Good {i}
       colors: [red, blue, green, purple, orange]
       traj_key: average_pending_inventories
-    average_demand_producers:
-      checkbox_name: Average Demand Producers
+    demand_from_producers:
+      checkbox_name: Demand From Producers
       toggled: false
       linestyle: solid
       linewidth: 1.5
@@ -178,8 +178,8 @@ demand:
       label_template: Producer Pending Inventory {i}
       colors: [red, blue, green, purple, orange]
       traj_key: average_pending_inventories_producers
-    average_demand_distributors:
-      checkbox_name: Average Demand Distributors
+    consumer_goods_demand:
+      checkbox_name: Consumer Goods Demand
       toggled: false
       linestyle: solid
       linewidth: 1.5
@@ -196,6 +196,24 @@ demand:
       label_template: Distributor Pending Inventory {i}
       colors: [red, blue, green, purple, orange]
       traj_key: average_pending_inventories_distributors
+    demand_for_machines:
+      checkbox_name: Demand for Machines
+      toggled: false
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Average Demand for Machine {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: average_machine_demand
+    pending_inventory_consumer_goods:
+      checkbox_name: Pending Inventory (Consumer Goods)
+      toggled: false
+      linestyle: dashed
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Pending Inventory for Consumer Good {i}
+      colors: ['']
+      traj_key: average_pending_inventories_consumption
   default_lims: [[63.5485, 4851.18], [-2476.07, 5858.99]]
 income:
   name: Income
@@ -233,7 +251,7 @@ income:
       labels: [Maximum Account]
       colors: ['#00807c']
       traj_key: max_account
-  default_lims: [[-3527.33, 14881.3], [8.99519, 264.579]]
+  default_lims: [[38.6696, 4344.33], [4279.01, 5059.11]]
 dependency_graph:
   name: Dependency Graph
   projection: 2d
@@ -372,7 +390,7 @@ employment:
   plots:
     total_employment:
       checkbox_name: Total Employment
-      toggled: true
+      toggled: false
       linestyle: solid
       linewidth: 1.5
       markersize: 6.0
@@ -381,7 +399,7 @@ employment:
       traj_key: employment
     sectoral_employment:
       checkbox_name: Sectoral Employment
-      toggled: true
+      toggled: false
       linestyle: solid
       linewidth: 1.5
       markersize: 6.0
@@ -390,7 +408,7 @@ employment:
       traj_key: available_employment_by_sector
     transfer_requests:
       checkbox_name: Transfer Requests
-      toggled: true
+      toggled: false
       linestyle: solid
       linewidth: 1.5
       markersize: 6.0
@@ -400,7 +418,7 @@ employment:
       traj_key_x: transfer_requests_by_sector_t
     long_run_sectoral_employment:
       checkbox_name: Long-Run Sectoral Employment
-      toggled: false
+      toggled: true
       linestyle: dashed
       linewidth: 1.5
       markersize: 6.0
@@ -484,7 +502,7 @@ busyness:
   plots:
     overall_busyness:
       checkbox_name: Overall Busyness
-      toggled: false
+      toggled: true
       linestyle: solid
       linewidth: 1.5
       markersize: 6.0
