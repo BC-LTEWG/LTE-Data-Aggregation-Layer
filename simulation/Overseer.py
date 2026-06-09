@@ -331,7 +331,7 @@ class Overseer:
                     prod_id = dic["product_id"]
                     amt = dic["amount"]
                     dist_id = self._get_dist_key(id)
-                    self.distributors[dist_id]["inc_inventory"][prod_id] += amt
+                    self.distributors[dist_id]["inc_inventory"][prod_id] -= amt
 
                 if label == "catalog_addition":
                     prod_id = dic["product_id"]
@@ -386,6 +386,30 @@ class Overseer:
                         if len(self.transfer_requests_by_sector_t) == 0 or self.current_t != self.transfer_requests_by_sector_t[-1]:
                             self.transfer_requests_by_sector_t = np.append(self.transfer_requests_by_sector_t, self.current_t)
 
+                if label == "pursued_plan":
+                    customer_id = dic["customer_id"]
+                    is_distributor = (customer_id >= self.settings["n_producers"])
+                    if is_distributor:
+                        customer_id = self._get_dist_key(customer_id)
+                    prod_id = dic["product_id"]
+                    amt = dic["quantity"]
+
+                    self.active_plans[prod_id]["plans"] += 1
+                    self.active_plans[prod_id]["quantity"] += amt
+                    self.long_run_sector_activity[prod_id] += amt
+
+                    if is_distributor:
+                        self.distributors[customer_id]["inc_inventory"][prod_id] += amt
+                    else:
+                        self.producers[customer_id]["inc_inventory"][prod_id] += amt
+
+                if label == "ended_plan":
+                    prod_id = dic["product_id"]
+                    amt = dic["quantity"]
+                    self.active_plans[prod_id]["plans"] -= 1
+                    self.active_plans[prod_id]["quantity"] -= amt
+
+
     def _update_hourly_stats(self):
         """ 
         Updates the trajectories dictionary.
@@ -397,11 +421,9 @@ class Overseer:
         distributor_unshelved_supply = self._get_distributor_supply(produced= True)
 
         average_demands = self._get_overall_demand()
-        if self.current_t == 10:
-            print(f"{average_demands=}")
         average_demands_producers = self._get_producer_demands()
         average_machine_demand = self._get_producer_demands(machines= True)
-        average_demands_distributors = self._get_distributor_demands(produced= False)
+        average_demands_distributors = self._get_distributor_demands(produced= True)
 
         self._set_pending_inventories()
         average_pending_inventories_all = self._get_overall_pending_inventory()
@@ -540,6 +562,9 @@ class Overseer:
             epr = 1/r_hat - 1
             # logger.info(f"EPR = {epr}, b = {self.b}, A = {self.A}, l = {self.l}, p = {self.prices}")
 
+        for dist_dict in self.distributors.values():
+            logger.info(f"{dist_dict["catalog"]=}")
+
 
     # The stuff below this point are all just helper functions. 
     # Unless you're making your own or debugging something, you shouldn't ever have to look below here.
@@ -652,17 +677,26 @@ class Overseer:
 
     def _get_producer_supply(self, machines= False):
         n_prod_goods = self.settings["n_produced_goods"]
+        n_machines = self.settings["n_machines"]
         if machines:
             idx_low = 2*n_prod_goods
-            idx_high = self.settings["n_products"]
+            idx_high = idx_low + n_machines
         else:
             idx_low = 0
             idx_high = n_prod_goods
 
-        supply = np.zeros(n_prod_goods)
+        supply = np.zeros(n_prod_goods) if not machines else np.zeros(n_machines)
         for properties in self.producers.values():
             inventory = properties["inventory"]
-            supply += inventory[idx_low:idx_high]
+            try:
+                supply += inventory[idx_low:idx_high]
+            except ValueError:
+                logger.info(f"{inventory=}")
+                logger.info(f"{supply=}")
+                logger.info(f"{idx_low=}")
+                logger.info(f"{idx_high=}")
+                logger.info(f"{machines=}")
+                raise ValueError("Same bug")
 
         return supply
 
@@ -678,7 +712,7 @@ class Overseer:
         average_demands = np.zeros(self.settings["n_machines"]) if machines else np.zeros(self.settings["n_produced_goods"])
         idx_list = list(range(idx_low, idx_high))
         for i, j in enumerate(idx_list):
-            total_demand_j = [producer_dict["demand_signals"][j] for producer_dict in self.producers.values() if j in producer_dict["catalog"]]
+            total_demand_j = [producer_dict["demand_signals"][j] for producer_dict in self.producers.values()]# if j in producer_dict["catalog"]]
             average_demands[i] = np.average(total_demand_j) if total_demand_j else 0
 
         return average_demands
@@ -695,7 +729,7 @@ class Overseer:
         average_pending_inventories = np.zeros(self.settings["n_machines"]) if machines else np.zeros(self.settings["n_produced_goods"])
         idx_list = list(range(idx_low, idx_high))
         for i, j in enumerate(idx_list):
-            pending_inventory_j = [producer_dict["pending_inventory"][j] for producer_dict in self.producers.values() if j in producer_dict["catalog"]]
+            pending_inventory_j = [producer_dict["pending_inventory"][j] for producer_dict in self.producers.values()]# if j in producer_dict["catalog"]]
             average_pending_inventories[i] = np.average(pending_inventory_j) if pending_inventory_j else 0
 
         return average_pending_inventories
@@ -710,13 +744,9 @@ class Overseer:
             idx_high = 2*n_prod_goods
 
         average_demands = np.zeros(self.settings["n_produced_goods"])
-        if self.current_t == 10 and produced:
-            print(f"{average_demands}")
         idx_list = list(range(idx_low, idx_high))
         for i,j in enumerate(idx_list):
-            total_demand_j = [dist_dict["demand_signals"][j] for dist_dict in self.distributors.values() if j in dist_dict["catalog"]]
-            if self.current_t == 10 and produced:
-                print(f"{total_demand_j=}")
+            total_demand_j = [dist_dict["demand_signals"][j] for dist_dict in self.distributors.values()]# if j in dist_dict["catalog"]]
             average_demands[i] = np.average(total_demand_j) if total_demand_j else 0
 
         return average_demands
@@ -733,7 +763,8 @@ class Overseer:
         average_pending_inventories = np.zeros(self.settings["n_produced_goods"])
         idx_list = list(range(idx_low, idx_high))
         for i,j in enumerate(idx_list):
-            pending_inventory_j = [dist_dict["pending_inventory"][j] for dist_dict in self.distributors.values() if j in dist_dict["catalog"]]
+            pending_inventory_j = [dist_dict["pending_inventory"][j] for dist_dict in self.distributors.values()]# if j in dist_dict["catalog"]]
+            # pending_inventory_j2 = [dist_dict["pending_inventory"][j] for dist_dict in self.distributors.values()]
             average_pending_inventories[i] = np.average(pending_inventory_j) if pending_inventory_j else 0
 
         return average_pending_inventories
@@ -741,9 +772,6 @@ class Overseer:
     def _get_overall_demand(self):
         average_demands_producers = self._get_producer_demands(machines= False)
         average_demands_distributors = self._get_distributor_demands(produced= True)
-        if self.current_t == 10:
-            print(f"{average_demands_producers=}")
-            print(f"{average_demands_distributors=}")
         return average_demands_producers + average_demands_distributors
 
     def _get_overall_pending_inventory(self):

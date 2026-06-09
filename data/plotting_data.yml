@@ -58,7 +58,7 @@ prices:
       linestyle: dashed
       linewidth: 1.5
       markersize: 6.0
-      label_template: Price of Machine {i}
+      label_template: Value of Machine {i}
       colors: ['']
       traj_key: machine_values
     living_labor_values:
@@ -184,7 +184,7 @@ demand:
       linestyle: solid
       linewidth: 1.5
       markersize: 6.0
-      label_template: Average Demand for {i}
+      label_template: Average Demand for C{i}
       colors: [red, blue, green, purple, orange]
       traj_key: average_demand_distributors
     pending_inventory_distributor:
@@ -193,7 +193,7 @@ demand:
       linestyle: dotted
       linewidth: 1.5
       markersize: 6.0
-      label_template: Distributor Pending Inventory {i}
+      label_template: Distributor Pending Inventory for P{i}
       colors: [red, blue, green, purple, orange]
       traj_key: average_pending_inventories_distributors
     demand_for_machines:
@@ -211,8 +211,8 @@ demand:
       linestyle: dashed
       linewidth: 1.5
       markersize: 6.0
-      label_template: Pending Inventory for Consumer Good {i}
-      colors: ['']
+      label_template: Pending Inventory for C{i}
+      colors: [red, blue, green, purple, orange]
       traj_key: average_pending_inventories_consumption
   default_lims: [[63.5485, 4851.18], [-2476.07, 5858.99]]
 income:
