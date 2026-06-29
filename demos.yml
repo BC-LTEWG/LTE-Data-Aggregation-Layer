@@ -1,0 +1,23 @@
+demos: 
+  bc_lte:
+    name: BC LTE
+    desc: ''
+    details:
+      simulation_model: LTE-Data-Aggregation-Layer
+      simulation_function: get_trajectories
+      default_preset: default_preset
+      axis_settings:
+        limits:
+          a1: [[0.0, 10000.0], [0.0763756, 0.266479]]
+        dimension: [1, 1]
+        dropdown_indices: [0]
+        checked_plots:
+          a1: [Prices, Values]
+        settings:
+          a1:
+            legend_visible: true
+            legend_fontsize: 10
+            legend_loc: upper right
+            title: true
+            xlabel: true
+            ylabel: true
