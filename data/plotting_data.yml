@@ -214,6 +214,15 @@ demand:
       label_template: Average Demand for C{i}
       colors: [red, blue, green, purple, orange]
       traj_key: average_demand_distributors_c_goods
+    machines_pending_inventory:
+      checkbox_name: Machines Pending Inventory
+      toggled: true
+      linestyle: dashed
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Pending Inventory for Machine {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: average_machine_pending_inventory
   default_lims: [[63.5485, 4851.18], [-2476.07, 5858.99]]
 income:
   name: Income
@@ -260,24 +269,6 @@ income:
       labels: [FIC]
       colors: ['#42efff']
       traj_key: fic
-    consumer_goods_value_total:
-      checkbox_name: Consumer Goods Value Total
-      toggled: false
-      linestyle: solid
-      linewidth: 1.5
-      markersize: 6.0
-      labels: [Average Goods Value (Total)]
-      colors: ['#31ff76']
-      traj_key: average_consumer_goods_value
-    public_funded_goods_value:
-      checkbox_name: Public Funded Goods Value
-      toggled: true
-      linestyle: dashed
-      linewidth: 1.5
-      markersize: 6.0
-      labels: [Public Sector Goods Value]
-      colors: ['#87ff17']
-      traj_key: average_public_sector_consumer_goods_value
   default_lims: [[38.6696, 4344.33], [4279.01, 5059.11]]
 dependency_graph:
   name: Dependency Graph
@@ -647,4 +638,94 @@ busyness:
       edgecolors: [Black]
       histtype: bar
       align: left
+    length_of_working_day:
+      checkbox_name: Length of Working Day
+      toggled: false
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      labels: [Length of Working Day]
+      colors: [green]
+      traj_key: work_hours_daily
   default_lims: [[-34.6118, 27984.9], [-0.0651938, 0.436073]]
+order_sizes:
+  name: Order Sizes
+  tooltip: null
+  plots:
+    goods_order_sizes:
+      checkbox_name: Goods Order Sizes
+      toggled: true
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Order Size for Good {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: order_sizes_goods
+    c_goods_order_sizes:
+      checkbox_name: C Goods Order Sizes
+      toggled: false
+      linestyle: dashed
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Order Size for C Good {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: order_sizes_c_goods
+    machine_order_sizes:
+      checkbox_name: Machine Order Sizes
+      toggled: true
+      linestyle: dotted
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Order Size of Machine {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: order_sizes_machines
+  projection: 2d
+  axis_visible: true
+  grid_visible: true
+  ticks_visible: true
+  frame_visible: true
+public_sector:
+  name: Public Sector
+  tooltip: null
+  plots:
+    public_fund:
+      checkbox_name: Public Fund
+      toggled: true
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      labels: [Public Fund]
+      colors: [blue]
+      traj_key: public_fund
+    public_revenue:
+      checkbox_name: Public Revenue
+      toggled: false
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      labels: [Public Revenue]
+      colors: [green]
+      traj_key: public_revenue
+    public_expenditure:
+      checkbox_name: Public Expenditure
+      toggled: true
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      labels: [Public Expenditure]
+      colors: [red]
+      traj_key: public_expenditure
+    fic:
+      checkbox_name: FIC
+      toggled: true
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      labels: [FIC]
+      colors: ['#42efff']
+      traj_key: fic
+  projection: 2d
+  axis_visible: true
+  grid_visible: true
+  ticks_visible: true
+  frame_visible: true
