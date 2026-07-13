@@ -186,7 +186,7 @@ demand:
       markersize: 6.0
       label_template: Distributor Pending Inventory for P{i}
       colors: [red, blue, green, purple, orange]
-      traj_key: average_pending_inventories_distributors
+      traj_key: average_pending_inventories_distributors_goods
     demand_for_machines:
       checkbox_name: Demand for Machines
       toggled: false
@@ -204,7 +204,7 @@ demand:
       markersize: 6.0
       label_template: Pending Inventory for C{i}
       colors: [red, blue, green, purple, orange]
-      traj_key: average_pending_inventories_consumption
+      traj_key: average_pending_inventories_c_goods
     c_goods_demand:
       checkbox_name: C Goods Demand
       toggled: false
@@ -308,7 +308,7 @@ plans:
     plans_in_progress_c_goods:
       checkbox_name: Plans in Progress (C Goods)
       toggled: false
-      linestyle: dashed
+      linestyle: solid
       linewidth: 1.5
       markersize: 6.0
       label_template: Plans in Progress for {i}
@@ -356,16 +356,16 @@ plans:
       linestyle: dotted
       linewidth: 1.5
       markersize: 6.0
-      label_template: Reorders Placed for {i}
+      label_template: Reorders Requests for {i}
       colors: [red, blue, green, purple, orange]
       traj_key: reorder_requests_goods
     reorder_attempts_c_goods:
       checkbox_name: Reorder Attempts (C Goods)
       toggled: false
-      linestyle: dotted
+      linestyle: dashed
       linewidth: 1.5
       markersize: 6.0
-      label_template: Reorders Placed for C{i}
+      label_template: Reorders Requests for C{i}
       colors: [red, blue, green, purple, orange]
       traj_key: reorder_requests_c_goods
     reorder_attempts_machines:
@@ -389,10 +389,10 @@ plans:
     reorder_failures_c_goods:
       checkbox_name: Reorder Failures (C Goods)
       toggled: false
-      linestyle: dashed
+      linestyle: dotted
       linewidth: 1.5
       markersize: 6.0
-      label_template: Hourly Reorder Failure Consumer Good {i}
+      label_template: Reorder Failures Consumer Good {i}
       colors: [red, blue, green, purple, orange]
       traj_key: hrly_reorder_failure_c_goods
     reorder_failures_machines:
@@ -524,6 +524,24 @@ employment:
       label_template: Minimum Necessary Employment for Sector {i}
       colors: [red, blue, green, purple, orange]
       traj_key: eqb_employment
+    total_trapped_workers:
+      checkbox_name: Total Trapped Workers
+      toggled: false
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      labels: [Trapped Workers]
+      colors: ['#ff19e8']
+      traj_key: total_trapped
+    sectoral_trapped_workers:
+      checkbox_name: Sectoral Trapped Workers
+      toggled: false
+      linestyle: dotted
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Workers Trapped in Sector {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: sectoral_trapped
   default_lims: [[192.559, 24324.7], [-6.75752, 44.7207]]
 consumption_initialization:
   name: Consumption Initialization

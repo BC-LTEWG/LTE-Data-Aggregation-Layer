@@ -81,6 +81,8 @@ class Overseer:
         self.public_fund = 0.0
         self.public_expenditure = 0.0
         self.public_revenue = 0.0
+        self.trapped_workers_total = 0
+        self.trapped_workers_per_sector = [0]*self.settings["n_sectors"]
 
         # HERE IS WHERE YOU WOULD DECLARE ANY QUANTITIES WHICH YOU WANT THE OVERSEER TO KEEP TRACK OF
         self.prices = np.zeros(self.settings["n_products"])
@@ -102,7 +104,7 @@ class Overseer:
             "demand_signals": np.zeros(self.settings["n_products"]),
             "catalog": [],
             "recent_busyness": 0,
-            "inc_inventory": np.zeros(self.settings["n_products"])
+            "inc_inventory": np.zeros(self.settings["n_products"]),
         } for i in range(self.settings["n_producers"])}
 
         self.distributors = {i: {
@@ -112,7 +114,7 @@ class Overseer:
             "demand_signals": np.zeros(self.settings["n_products"]),
             "catalog": [],
             "recent_busyness": 0,
-            "inc_inventory": np.zeros(self.settings["n_products"])
+            "inc_inventory": np.zeros(self.settings["n_products"]),
         } for i in range(self.settings["n_distributors"])}
 
         self.A = np.zeros((self.settings["n_products"], self.settings["n_products"]))
@@ -356,6 +358,29 @@ class Overseer:
                     quantity = dic["quantity"]
                     self.order_sizes[prod_id].append(quantity)
 
+                if label == "trapped_workers":
+                    prod_id = dic["product"]
+                    n_workers = dic["n_workers"]
+                    sector_idx = self.get_sector_idx(prod_id)
+                    self.trapped_workers_total += n_workers
+                    self.trapped_workers_per_sector[sector_idx] += n_workers
+
+                if label == "plan_start_failure":
+                    prod_id = dic["product_id"]
+                    cust_id = dic["customer_id"]
+                    n_workers = dic["n_workers"]
+                    missing_input = dic["missing_input_id"]
+                    required = dic["required"]
+                    available = dic["available"]
+
+                    logger.warning(f"Plan start failure! \n \
+                                        product id: {prod_id} \n \
+                                        cust_id: {cust_id} \n \
+                                        n_workers: {n_workers} \n \
+                                        missing_input: {missing_input} \n \
+                                        required: {required} \n \
+                                        available: {available}")
+
             case "Distributor":
                 if label == "inventory_level":
                     prod_id = dic["product_id"]
@@ -472,6 +497,29 @@ class Overseer:
                     amt = dic["quantity"]
                     self.active_plans[prod_id]["plans"] -= 1
                     self.active_plans[prod_id]["quantity"] -= amt
+
+                if label == "trapped_workers":
+                    prod_id = dic["product"]
+                    n_workers = dic["n_workers"]
+                    sector_idx = self.get_sector_idx(prod_id)
+                    self.trapped_workers_total += n_workers
+                    self.trapped_workers_per_sector[sector_idx] += n_workers
+
+                if label == "plan_start_failure":
+                    prod_id = dic["product_id"]
+                    cust_id = dic["customer_id"]
+                    n_workers = dic["n_workers"]
+                    missing_input = dic["missing_input_id"]
+                    required = dic["required"]
+                    available = dic["available"]
+
+                    logger.warning(f"Plan start failure! \n \
+                                        product id: {prod_id} \n \
+                                        cust_id: {cust_id} \n \
+                                        n_workers: {n_workers} \n \
+                                        missing_input: {missing_input} \n \
+                                        required: {required} \n \
+                                        available: {available}")
 
 
     def _update_hourly_stats(self):
@@ -622,6 +670,9 @@ class Overseer:
             "work_hours_daily": Append(self.weekly_working_hours / self.settings["init_working_week"]),
             "transfer_requests_by_sector_t": Replace(self.transfer_requests_by_sector_t),
 
+            "total_trapped": Append(self.trapped_workers_total),
+            "sectoral_trapped": Append(self.trapped_workers_per_sector),
+
             "fic": Append(self.fic),
             "average_consumer_goods_value": Append(self.average_consumer_goods_value),
             "public_fund": Append(self.public_fund),
@@ -641,6 +692,8 @@ class Overseer:
         self.reorder_requests = np.zeros(self.settings["n_products"])
         self.reorder_failures = np.zeros(self.settings["n_products"])
         self.reorder_failure_volumes = np.zeros(self.settings["n_products"])
+        self.trapped_workers_total = 0
+        self.trapped_workers_per_sector = [0]*self.settings["n_sectors"]
 
     def initialize_properties(self):
         N = self.settings["n_persons"]
@@ -1039,7 +1092,6 @@ class Overseer:
 
         sectoral_busyness = np.array([np.average(sector) for sector in sectoral_busyness_data])
         return sectoral_busyness
-
 
     def _set_pending_inventories(self):
         for _, producer_dict in self.producers.items():
