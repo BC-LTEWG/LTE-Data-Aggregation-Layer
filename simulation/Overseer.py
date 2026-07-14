@@ -7,7 +7,7 @@ from scipy.linalg import inv, eig
 from pathlib import Path
 import math
 import copy
-from overseer.tools.dataclasses import Replace, Extend, Append
+from overseer.tools.dataclasses import Replace, Extend, Append, Update
 
 np.set_printoptions(
     precision=3,      # digits after decimal-ish
@@ -19,7 +19,6 @@ class Overseer:
     """ The guy who watches the LTE and keeps track of the data. """
     def __init__(self, bin_path, params, log_path_str: str | None = None):
         self.params = params
-
 
         if log_path_str is not None:
             log_path = Path(log_path_str).expanduser().resolve()
@@ -36,10 +35,14 @@ class Overseer:
 
         # create a more human readable dictionary of helpful quantities
         self.settings = {
-            "n_commodities": params.N_c,
+            "n_goods": params.N_c,
+            "n_machines": params.N_m,
+            "max_num_inputs_per_good": params.N_inputs_max,
             "n_time_steps": params.N_S,
             "n_persons": params.N_h,
-            "prods_per_machine": params.m_r,
+            # "prods_per_machine": params.m_r,
+            "fixed_seed": params.fixed_seed,
+            "seed": params.seed,
             "n_producers": params.N_p,
             "n_distributors": params.N_c,
             "init_working_day": params.T,
@@ -50,9 +53,10 @@ class Overseer:
             "productivity": params.productivity,
             "consump_epsilon": params.consump_epsilon,
             # the rest of these are d if pending_inventory_j else 0ependent variables
-            "n_produced_goods": params.N_c,
-            "n_machines": params.N_c // params.m_r,
-            "n_products": 2 * params.N_c + params.N_c // params.m_r,
+            "n_sectors": params.N_c + params.N_m + 1,
+            "n_consumer_goods": params.N_c,
+            # "n_machines": params.N_c // params.m_r,
+            "n_products": 2 * params.N_c + params.N_m,
             "init_prices": params.init_prices
         }
 
@@ -65,11 +69,19 @@ class Overseer:
         self.collector.start_sim_and_begin_collection()
 
         # internal stuff
-        self.text_log = []
         self.t = [0]
         self.current_t = 0
         self.stdout_done = False
         self.stderr_done = False
+
+        self.fic = 0.0
+        self.average_consumer_goods_value = 0.0
+        self.average_public_sector_consumer_goods_value = 0.0
+        self.public_fund = 0.0
+        self.public_expenditure = 0.0
+        self.public_revenue = 0.0
+        self.trapped_workers_total = 0
+        self.trapped_workers_per_sector = [0]*self.settings["n_sectors"]
 
         # HERE IS WHERE YOU WOULD DECLARE ANY QUANTITIES WHICH YOU WANT THE OVERSEER TO KEEP TRACK OF
         self.prices = np.zeros(self.settings["n_products"])
@@ -91,7 +103,7 @@ class Overseer:
             "demand_signals": np.zeros(self.settings["n_products"]),
             "catalog": [],
             "recent_busyness": 0,
-            "inc_inventory": np.zeros(self.settings["n_products"])
+            "inc_inventory": np.zeros(self.settings["n_products"]),
         } for i in range(self.settings["n_producers"])}
 
         self.distributors = {i: {
@@ -101,7 +113,7 @@ class Overseer:
             "demand_signals": np.zeros(self.settings["n_products"]),
             "catalog": [],
             "recent_busyness": 0,
-            "inc_inventory": np.zeros(self.settings["n_products"])
+            "inc_inventory": np.zeros(self.settings["n_products"]),
         } for i in range(self.settings["n_distributors"])}
 
         self.A = np.zeros((self.settings["n_products"], self.settings["n_products"]))
@@ -109,16 +121,19 @@ class Overseer:
         self.b = np.zeros(self.settings["n_products"])
         self.consumption_frequencies = np.zeros(self.settings["n_products"])
         self.consumption_periods = np.zeros(self.settings["n_products"])
+        self.reorder_failures = np.zeros(self.settings["n_products"])
+        self.reorder_failure_volumes = np.zeros(self.settings["n_products"])
         self.order_sizes = [[] for i in range(self.settings["n_products"])]
-        self.transfer_requests_by_sector = np.zeros(self.settings["n_products"])
+        self.transfer_requests_by_sector = np.zeros(self.settings["n_sectors"])
         self.transfer_requests_by_sector_t = np.array([])
         self.active_plans = {i: {"plans": 0, "quantity": 0} for i in range(self.settings["n_products"])}
         self.reorder_requests = np.zeros(self.settings["n_products"])
         self.overall_busyness = 0
         self.overall_busyness_data = []
         self.overall_weekly_busyness = 0
-        self.long_run_employment_by_sector = np.zeros(self.settings["n_produced_goods"]+self.settings["n_machines"]+1)
-        self.long_run_sector_activity = np.zeros(self.settings["n_products"])
+        self.weekly_working_hours = 5*8
+        self.long_run_employment_by_sector = np.zeros(self.settings["n_goods"]+self.settings["n_machines"]+1)
+        self.long_run_sector_activity = np.zeros(self.settings["n_sectors"])
 
     def _process_dic(self, dic):
         """ 
@@ -128,7 +143,16 @@ class Overseer:
         client = dic.get("client", "")
         label = dic.get("label", "")
         values = dic.get("values", [])
+
+        if label == "text_log":
+            self.log_text(dic)
+            return
+
         match client:
+            case "Simulation":
+                if label == "random_seed":
+                    self.seed = dic["value"]
+
             case "Society":
                 if label == "A":
                     coords_str = dic["coords"]
@@ -167,6 +191,28 @@ class Overseer:
 
                 if label == "employment":
                     self.current_employment = dic["total"]
+
+                if label == "fic":
+                    self.fic = dic["value"]
+
+                if label == "public_sector_distribution_value":
+                    self.average_public_sector_consumer_goods_value = dic["value"]
+
+                if label == "all_distribution_value":
+                    self.average_consumer_goods_value = dic["value"]
+
+                if label == "public_fund":
+                    self.public_fund = dic["value"]
+
+                if label == "public_expenditure":
+                    self.public_expenditure = dic["value"]
+
+                if label == "public_revenue":
+                    self.public_revenue = dic["value"]
+
+                if label == "work_hours_weekly":
+                    self.weekly_working_hours = dic["work_hours_daily"] * dic["work_days_weekly"]
+                    self.busy_upper_bd = self.weekly_working_hours / 24 / 7
 
             case "Person":
                 if label == "age":
@@ -215,6 +261,8 @@ class Overseer:
                 if label == "inventory_reduction":
                     prod_id = dic["product_id"]
                     amt = dic["amount"]
+                    producer_id = dic["id"]
+                    self.producers[producer_id]["inventory"][prod_id] -= amt
                     # distributor_inventories[id-n_producers][prod_id] -= amt
 
                 if label == "catalog_addition":
@@ -228,12 +276,13 @@ class Overseer:
                     if is_distributor:
                         customer_id = self._get_dist_key(customer_id)
                     prod_id = dic["product_id"]
+                    sector_id = self.get_sector_idx(prod_id)
                     amt = dic["quantity"]
                     n_workers = dic["num_workers"]
 
                     self.active_plans[prod_id]["plans"] += 1
                     self.active_plans[prod_id]["quantity"] += amt
-                    self.long_run_sector_activity[prod_id] += amt
+                    self.long_run_sector_activity[sector_id] += amt
 
                     if is_distributor:
                         self.distributors[customer_id]["inc_inventory"][prod_id] += amt
@@ -255,6 +304,12 @@ class Overseer:
                     prod_id = dic["product_id"]
                     demand = dic["demand"]
                     self.producers[id]["demand_signals"][prod_id] = demand
+
+                if label == "reorder_failure":
+                    prod_id = dic["product_id"]
+                    amt = dic["amount"]
+                    self.reorder_failures[prod_id] += 1
+                    self.reorder_failure_volumes[prod_id] += amt
 
                 if label in {"reorder", "reorder_failure"}:
                     prod_id = dic["product_id"]
@@ -280,7 +335,8 @@ class Overseer:
                 if label == "transfer_request":
                     cat = self.producers[id]["catalog"]
                     for i in cat:
-                        self.transfer_requests_by_sector[i] +=  1
+                        sector_idx = self.get_sector_idx(i)
+                        self.transfer_requests_by_sector[sector_idx] +=  1
                         if len(self.transfer_requests_by_sector_t) == 0 or self.current_t != self.transfer_requests_by_sector_t[-1]:
                             self.transfer_requests_by_sector_t = np.append(self.transfer_requests_by_sector_t, self.current_t)
 
@@ -300,6 +356,34 @@ class Overseer:
                         self.distributors[new_emp]["employees"] += 1
                     else:
                         self.producers[new_emp]["employees"] += 1
+
+                if label == "draft_plan":
+                    prod_id = dic["product_id"]
+                    quantity = dic["quantity"]
+                    self.order_sizes[prod_id].append(quantity)
+
+                if label == "trapped_workers":
+                    prod_id = dic["product"]
+                    n_workers = dic["n_workers"]
+                    sector_idx = self.get_sector_idx(prod_id)
+                    self.trapped_workers_total += n_workers
+                    self.trapped_workers_per_sector[sector_idx] += n_workers
+
+                if label == "plan_start_failure":
+                    prod_id = dic["product_id"]
+                    cust_id = dic["customer_id"]
+                    n_workers = dic["n_workers"]
+                    missing_input = dic["missing_input_id"]
+                    required = dic["required"]
+                    available = dic["available"]
+
+                    logger.warning(f"Plan start failure! \n \
+                                        product id: {prod_id} \n \
+                                        cust_id: {cust_id} \n \
+                                        n_workers: {n_workers} \n \
+                                        missing_input: {missing_input} \n \
+                                        required: {required} \n \
+                                        available: {available}")
 
             case "Distributor":
                 if label == "inventory_level":
@@ -344,6 +428,12 @@ class Overseer:
                     dist_id = self._get_dist_key(id)
                     self.distributors[dist_id]["demand_signals"][prod_id] = demand
 
+                if label == "reorder_failure":
+                    prod_id = dic["product_id"]
+                    amt = dic["amount"]
+                    self.reorder_failures[prod_id] += 1
+                    self.reorder_failure_volumes[prod_id] += amt
+
                 if label in {"reorder", "reorder_failure"}:
                     prod_id = dic["product_id"]
                     amt = dic["amount"]
@@ -381,10 +471,12 @@ class Overseer:
                 if label == "transfer_request":
                     dist_id = self._get_dist_key(id)
                     cat = self.distributors[dist_id]["catalog"]
-                    for i in cat:
-                        self.transfer_requests_by_sector[i] +=  1
-                        if len(self.transfer_requests_by_sector_t) == 0 or self.current_t != self.transfer_requests_by_sector_t[-1]:
-                            self.transfer_requests_by_sector_t = np.append(self.transfer_requests_by_sector_t, self.current_t)
+                    if len(cat) == 0:
+                        return
+                    sector_idx = self.get_sector_idx(cat[0])
+                    self.transfer_requests_by_sector[sector_idx] +=  1
+                    if len(self.transfer_requests_by_sector_t) == 0 or self.current_t != self.transfer_requests_by_sector_t[-1]:
+                        self.transfer_requests_by_sector_t = np.append(self.transfer_requests_by_sector_t, self.current_t)
 
                 if label == "pursued_plan":
                     customer_id = dic["customer_id"]
@@ -392,11 +484,12 @@ class Overseer:
                     if is_distributor:
                         customer_id = self._get_dist_key(customer_id)
                     prod_id = dic["product_id"]
+                    sector_id = self.get_sector_idx(prod_id)
                     amt = dic["quantity"]
 
                     self.active_plans[prod_id]["plans"] += 1
                     self.active_plans[prod_id]["quantity"] += amt
-                    self.long_run_sector_activity[prod_id] += amt
+                    self.long_run_sector_activity[sector_id] += amt
 
                     if is_distributor:
                         self.distributors[customer_id]["inc_inventory"][prod_id] += amt
@@ -409,26 +502,73 @@ class Overseer:
                     self.active_plans[prod_id]["plans"] -= 1
                     self.active_plans[prod_id]["quantity"] -= amt
 
+                if label == "trapped_workers":
+                    prod_id = dic["product"]
+                    n_workers = dic["n_workers"]
+                    sector_idx = self.get_sector_idx(prod_id)
+                    self.trapped_workers_total += n_workers
+                    self.trapped_workers_per_sector[sector_idx] += n_workers
+
+                if label == "plan_start_failure":
+                    prod_id = dic["product_id"]
+                    cust_id = dic["customer_id"]
+                    n_workers = dic["n_workers"]
+                    missing_input = dic["missing_input_id"]
+                    required = dic["required"]
+                    available = dic["available"]
+
+                    logger.warning(f"Plan start failure! \n \
+                                        product id: {prod_id} \n \
+                                        cust_id: {cust_id} \n \
+                                        n_workers: {n_workers} \n \
+                                        missing_input: {missing_input} \n \
+                                        required: {required} \n \
+                                        available: {available}")
+
+    def log_text(self, dic):
+        extra = {
+            "client": "Society",
+            "time": self.current_t,
+        }
+        msg = "\n"
+        for key, value in dic.items():
+            if key in ("id", "client", "level", "t", "label"):
+                continue
+
+            msg += f"   {key}: {value}\n"
+            
+        level = dic.get("level", 20)
+        logger.log(level, msg, extra= extra)
 
     def _update_hourly_stats(self):
         """ 
         Updates the trajectories dictionary.
         """
+
+        good_lo, good_hi = self.get_goods_idxs()
+        c_good_lo, c_good_hi = self.get_consumer_goods_idxs()
+        m_lo, m_hi = self.get_machine_goods_idxs()
+
         producer_supply = self._get_producer_supply()
         producer_supply_machines = self._get_producer_supply(machines= True)
 
         consumer_goods_supply = self._get_distributor_supply()
         distributor_unshelved_supply = self._get_distributor_supply(produced= True)
 
-        average_demands = self._get_overall_demand()
-        average_demands_producers = self._get_producer_demands()
-        average_machine_demand = self._get_producer_demands(machines= True)
-        average_demands_distributors = self._get_distributor_demands(produced= True)
-
         self._set_pending_inventories()
+        average_demands = self._get_overall_demand()
         average_pending_inventories_all = self._get_overall_pending_inventory()
-        average_pending_inventories_distributors = self._get_distributor_pending_inventories(produced= True)
+
+        average_demands_producers = self._get_producer_demands()
         average_pending_inventories_producers = self._get_producer_pending_inventories()
+
+        average_demands_distributors = self._get_distributor_demands(produced= True)
+        average_demands_distributors_c_goods = self._get_distributor_demands(produced= False)
+
+        average_machine_demand = self._get_producer_demands(machines= True)
+        average_machine_pending_inventory = self._get_producer_pending_inventories(machines= True)
+
+        average_pending_inventories_distributors_goods = self._get_distributor_pending_inventories(produced= True)
         average_pending_inventories_consumption = self._get_distributor_pending_inventories()
 
         accounts = [dic["account"] for _, dic in self.persons.items()]
@@ -439,13 +579,22 @@ class Overseer:
         average_endowments = self._get_average_endowments(self.persons)
         average_proficiencies = self._get_average_abilities(self.persons)
 
-        plans_in_motion = [self.active_plans[i]["plans"] for i in range(self.settings["n_products"])]
-        quantities_in_prod = [self.active_plans[i]["quantity"] for i in range(self.settings["n_products"])]
+        plans_in_motion_goods = [self.active_plans[i]["plans"] for i in range(good_lo,good_hi)]
+        plans_in_motion_c_goods = [self.active_plans[i]["plans"] for i in range(c_good_lo,c_good_hi)]
+        plans_in_motion_machines = [self.active_plans[i]["plans"] for i in range(m_lo,m_hi)]
+
+        quantities_in_prod_goods = [self.active_plans[i]["quantity"] for i in range(good_lo,good_hi)]
+        quantities_in_prod_c_goods = [self.active_plans[i]["quantity"] for i in range(c_good_lo,c_good_hi)]
+        quantities_in_prod_machines = [self.active_plans[i]["quantity"] for i in range(m_lo,m_hi)]
 
         sectoral_employment = self._get_available_employment_by_sector()
         sectoral_busyness = self._get_sectoral_busyness()
 
-        order_size_averages = np.array([np.average(orders) for orders in self.order_sizes])
+        goods_reorder_failures = self.reorder_failures[good_lo:good_hi]
+        machines_reorder_failures = self.reorder_failures[m_lo:m_hi]
+        c_good_reorder_failures = self.reorder_failures[c_good_lo:c_good_hi]
+
+        order_size_averages = np.array([np.average(orders) if len(orders) > 0 else -1 for orders in self.order_sizes])
 
         busyness_data = np.asarray(self.overall_busyness_data)
         if len(self.overall_busyness_data) > 0:
@@ -456,7 +605,7 @@ class Overseer:
 
         self.long_run_employment_by_sector += sectoral_employment
 
-        n_prod_goods = self.settings["n_produced_goods"]
+        n_prod_goods = self.settings["n_goods"]
 
         self.traj = {
             "producer_goods_prices": Append(self.prices[:n_prod_goods]),
@@ -467,7 +616,7 @@ class Overseer:
             "consumption_goods_values": Append(self.values[n_prod_goods:2*n_prod_goods]),
             "machine_values": Append(self.values[2*n_prod_goods:]),
 
-            "b": Append(self.b),
+            "b": Append(self.b[c_good_lo:c_good_hi]),
             "producer_supply": Append(producer_supply),
             "producer_supply_machines": Append(producer_supply_machines),
             "consumer_goods_supply": Append(consumer_goods_supply),
@@ -477,79 +626,135 @@ class Overseer:
             "min_account": Append(np.min(accounts)),
             "max_account": Append(np.max(accounts)),
             "avg_endowments": Append(average_endowments),
-            "plans_in_progress": Append(plans_in_motion),
-            "goods_in_production": Append(quantities_in_prod),
+
+            "plans_in_progress_goods": Append(plans_in_motion_goods),
+            "plans_in_progress_c_goods": Append(plans_in_motion_c_goods),
+            "plans_in_progress_machines": Append(plans_in_motion_machines),
+
+            "goods_in_production_goods": Append(quantities_in_prod_goods),
+            "goods_in_production_c_goods": Append(quantities_in_prod_c_goods),
+            "goods_in_production_machines": Append(quantities_in_prod_machines),
+
             "n_healthy": Append(n_healthy),
             "n_unhealthy": Append(n_unhealthy),
             "average_proficiencies": Append(average_proficiencies),
             "employment": Append(self.current_employment),
-            "mean_consumption_frequencies": Append(self.consumption_frequencies),
-            "mean_consumption_periods": Append(self.consumption_periods),
+            "mean_consumption_frequencies": Append(self.consumption_frequencies[c_good_lo:c_good_hi]),
+            "mean_consumption_periods": Append(self.consumption_periods[c_good_lo:c_good_hi]),
 
             "average_demand": Append(average_demands),
-            "average_machine_demand": Append(average_machine_demand),
-            "average_demand_producers": Append(average_demands_producers),
-            "average_demand_distributors": Append(average_demands_distributors),
-
             "average_pending_inventories": Append(average_pending_inventories_all),
-            "average_pending_inventories_distributors": Append(average_pending_inventories_distributors),
-            "average_pending_inventories_producers": Append(average_pending_inventories_producers),
-            "average_pending_inventories_consumption": Append(average_pending_inventories_consumption),
 
-            "reorder_requests": Append(self.reorder_requests),
+            "average_demand_producers": Append(average_demands_producers),
+            "average_pending_inventories_producers": Append(average_pending_inventories_producers),
+
+            "average_demand_distributors_goods": Append(average_demands_distributors),
+            "average_pending_inventories_distributors_goods": Append(average_pending_inventories_distributors_goods),
+
+            "average_demand_distributors_c_goods": Append(average_demands_distributors_c_goods),
+            "average_pending_inventories_c_goods": Append(average_pending_inventories_consumption),
+
+            "average_machine_demand": Append(average_machine_demand),
+            "average_machine_pending_inventory": Append(average_machine_pending_inventory),
+
+            "reorder_requests_goods": Append(self.reorder_requests[good_lo:good_hi]),
+            "reorder_requests_c_goods": Append(self.reorder_requests[c_good_lo:c_good_hi]),
+            "reorder_requests_machines": Append(self.reorder_requests[m_lo:m_hi]),
+
+            "hrly_reorder_failure_goods": Append(goods_reorder_failures),
+            "hrly_reorder_failure_c_goods": Append(c_good_reorder_failures),
+            "hrly_reorder_failure_machines": Append(machines_reorder_failures),
             "available_employment_by_sector": Append(sectoral_employment),
+
             "sectoral_busyness": Append(sectoral_busyness),
             "overall_busyness": Append(self.overall_busyness),
             "busyness_data": Replace(self.overall_busyness_data),
             "overall_busyness_bins": Replace(overall_busyness_bins),
-            "order_sizes": Append(order_size_averages),
+
+            "order_sizes_goods": Append(order_size_averages[good_lo:good_hi]),
+            "order_sizes_c_goods": Append(order_size_averages[c_good_lo:c_good_hi]),
+            "order_sizes_machines": Append(order_size_averages[m_lo:m_hi]),
+
             "l": Append(self.l),
             "transfer_requests_by_sector": Append(self.transfer_requests_by_sector),
             "long_run_employment_by_sector": Append(self.long_run_employment_by_sector / max(self.current_t, 1)),
             "eqb_employment": Append(self.eqb_employment),
+
             "min_hrly_output": Append(self.min_hrly_output),
+            "long_run_activity": Append(self.long_run_sector_activity / max(self.current_t, 1)),
+
             "busy_lower_bound": Append(self.busy_lower_bd),
             "busy_upper_bound": Append(self.busy_upper_bd),
-            "long_run_activity": Append(self.long_run_sector_activity / max(self.current_t, 1)),
+            "work_hours_daily": Append(self.weekly_working_hours / self.settings["init_working_week"]),
             "transfer_requests_by_sector_t": Replace(self.transfer_requests_by_sector_t),
-            "A": Replace(self.A)
-        }
 
-        self.transfer_requests_by_sector = np.zeros(self.settings["n_products"])
+            "total_trapped": Append(self.trapped_workers_total),
+            "sectoral_trapped": Append(self.trapped_workers_per_sector),
+
+            "fic": Append(self.fic),
+            "average_consumer_goods_value": Append(self.average_consumer_goods_value),
+            "public_fund": Append(self.public_fund),
+            "public_revenue": Append(self.public_revenue),
+            "public_expenditure": Append(self.public_expenditure),
+            "average_public_sector_consumer_goods_value": Append(self.average_public_sector_consumer_goods_value)
+        }
+        if self.current_t == 0:
+            self.traj["A"] = Replace(self.A)
+            if hasattr(self, "seed"):
+                # logger.info(f"Adding seed {int(self.seed)} to update entry in traj")
+                self.traj["seed"] = Update(
+                    details= {"param": "seed", "value": int(self.seed)}
+                )
+
+        self.transfer_requests_by_sector = np.zeros(self.settings["n_sectors"])
         self.reorder_requests = np.zeros(self.settings["n_products"])
+        self.reorder_failures = np.zeros(self.settings["n_products"])
+        self.reorder_failure_volumes = np.zeros(self.settings["n_products"])
+        self.trapped_workers_total = 0
+        self.trapped_workers_per_sector = [0]*self.settings["n_sectors"]
 
     def initialize_properties(self):
         N = self.settings["n_persons"]
-        logger.info(f"{self.consumption_frequencies=}")
         net_weekly_demand = N*24*7*self.consumption_frequencies
         gross_weekly_demand = inv(np.eye(self.settings["n_products"]) - self.A)@net_weekly_demand
+
         sectoral_weekly_labor_req_raw = self.l * gross_weekly_demand
-        prod_goods_sectoral_weekly_labor_req = list(sectoral_weekly_labor_req_raw[0:self.settings["n_produced_goods"]])
-        machine_sectoral_weekly_labor_req = list(sectoral_weekly_labor_req_raw[2*self.settings["n_produced_goods"]:])
-
-        overall_sectoral_weekly_labor_req = []
-
-        lo = self.settings["n_produced_goods"]
-        hi = 2*self.settings["n_produced_goods"]
-        overall_sectoral_weekly_labor_req.extend(prod_goods_sectoral_weekly_labor_req)
-        overall_sectoral_weekly_labor_req.append(sum(sectoral_weekly_labor_req_raw[lo:hi]))
-        overall_sectoral_weekly_labor_req.extend(machine_sectoral_weekly_labor_req)
-        overall_sectoral_weekly_labor_req = np.asarray(overall_sectoral_weekly_labor_req)
         min_hrly_output = gross_weekly_demand / (24*7)
 
+        goods_lo, goods_hi = self.get_goods_idxs()
+        c_goods_lo, c_goods_hi = self.get_consumer_goods_idxs()
+        m_lo, m_hi = self.get_machine_goods_idxs()
+
+        prod_goods_sectoral_weekly_labor_req = list(sectoral_weekly_labor_req_raw[goods_lo:goods_hi])
+        machine_sectoral_weekly_labor_req = list(sectoral_weekly_labor_req_raw[m_lo:m_hi])
+        
+        prod_goods_min_hrly_output = list(min_hrly_output[goods_lo:goods_hi])
+        machines_min_hrly_output = list(min_hrly_output[m_lo:m_hi])
+
+        overall_sectoral_weekly_labor_req = []
+        overall_sectoral_activity_levels = []
+
+        overall_sectoral_weekly_labor_req.extend(prod_goods_sectoral_weekly_labor_req)
+        overall_sectoral_weekly_labor_req.append(sum(sectoral_weekly_labor_req_raw[c_goods_lo:c_goods_hi]))
+        overall_sectoral_weekly_labor_req.extend(machine_sectoral_weekly_labor_req)
+        overall_sectoral_weekly_labor_req = np.asarray(overall_sectoral_weekly_labor_req)
+
+        overall_sectoral_activity_levels.extend(prod_goods_min_hrly_output)
+        overall_sectoral_activity_levels.append(sum(min_hrly_output[c_goods_lo:c_goods_hi]))
+        overall_sectoral_activity_levels.extend(machines_min_hrly_output)
+        overall_sectoral_activity_levels = np.asarray(overall_sectoral_activity_levels)
+
+        self.predicted_order_sizes = 0.25 * 1.5 * 24*7 * min_hrly_output
         self.eqb_employment = overall_sectoral_weekly_labor_req / (8*5)
         self.busy_lower_bd = self.settings["consump_epsilon"]*(8*5 / (24*7))
         self.busy_upper_bd = (8*5 / (24*7))
-        self.min_hrly_output = min_hrly_output
+        self.min_hrly_output = overall_sectoral_activity_levels
         dim = self.A.shape[0]
         self.values = inv(np.eye(dim) - self.A.T)@self.l
-        logger.info(f"A =\n {self.A}, l=\n{self.l}")
-        logger.info(f"values = {self.values=}")
 
         (evals, evecs) = eig(self.A)
         idx = np.argmax(evals.real)
         r_hat = np.real(evals[idx])
-        logger.info(f"Rho(A) = {r_hat}")
 
         if self.settings["init_prices"] == "values":
             self.b = self.consumption_frequencies
@@ -560,11 +765,6 @@ class Overseer:
             idx = np.argmax(evals.real)
             r_hat = np.real(evals[idx])
             epr = 1/r_hat - 1
-            # logger.info(f"EPR = {epr}, b = {self.b}, A = {self.A}, l = {self.l}, p = {self.prices}")
-
-        for dist_dict in self.distributors.values():
-            logger.info(f"{dist_dict["catalog"]=}")
-
 
     # The stuff below this point are all just helper functions. 
     # Unless you're making your own or debugging something, you shouldn't ever have to look below here.
@@ -591,25 +791,17 @@ class Overseer:
                 if item.kind == "eof":
                     self.stderr_done = True
                 else:
-                    self.text_log.append((self.current_t, "stderr", item.payload))
-                continue
+                    logger.info(f"Standard Error: {item.payload}")
 
             if item.stream == "stdout":
                 if item.kind == "eof":
                     self.stdout_done = True
-                else:
-                    if self.is_logging:
-                        with open(self.log_path, "a") as f:
-                            print(item.payload, file= f)
 
                 if item.kind == "json":
                     dic = item.payload
                     if self.current_t != dic["t"]:
                         if self.current_t == 0:
                             self.initialize_properties()
-                            self.traj = {
-                                "A": Replace(self.A)
-                            }
                             self._update_hourly_stats()
                         else:
                             self._update_hourly_stats()
@@ -621,8 +813,8 @@ class Overseer:
                     else:
                         self._process_dic(dic)
                 else:
-                    # item.kind == "text"
-                    self.text_log.append((self.current_t, "stdout", item.payload))
+                    # item is text, not json, so just log it
+                    logger.info(f"Standard Output: {item.payload}")
                 continue
 
             if self.stdout_done and self.stderr_done:
@@ -635,23 +827,31 @@ class Overseer:
             return {}
 
     def _get_args_from_settings(self):
-        return [
+        args = [
             "-j",
             "-n", str(self.settings["n_time_steps"]),
             "-p", str(self.settings["n_persons"]),
             "-h", str(self.settings["init_working_day"]),
             "-w", str(self.settings["init_working_week"]),
-            "-g", str(self.settings["n_commodities"]),
-            "-m", str(self.settings["prods_per_machine"]),
+            "-g", str(self.settings["n_goods"]),
+            "-m", str(self.settings["n_machines"]),
             "-r", str(self.settings["n_producers"]),
             "-d", str(self.settings["n_distributors"]),
             "-s", str(self.settings["daily_sick_chance"]),
             "-a", str(self.settings["n_abilities"]),
             "-v", str(self.settings["person_ability_stddev"]),
+            "-i", str(self.settings["max_num_inputs_per_good"]),
             "--production_difficulty", str(self.settings["productivity"]),
             "--consumption_demand", str(self.settings["consump_epsilon"]),
             "--init_prices", str(self.settings["init_prices"])
         ]
+
+        logger.info(f"\n   {self.settings["fixed_seed"]=}, \n   {self.settings["seed"]=}")
+        if self.settings["fixed_seed"]:
+            args.append("-e")
+            args.append(str(self.settings["seed"]))
+
+        return args
 
     def _get_theoretical_values(self, A, l):
         n = A.shape[0]
@@ -660,7 +860,7 @@ class Overseer:
         return vals
 
     def _get_distributor_supply(self, produced= False):
-        n_prod_goods = self.settings["n_produced_goods"]
+        n_prod_goods = self.settings["n_goods"]
         if produced:
             idx_low = 0
             idx_high = n_prod_goods
@@ -676,7 +876,7 @@ class Overseer:
         return supply
 
     def _get_producer_supply(self, machines= False):
-        n_prod_goods = self.settings["n_produced_goods"]
+        n_prod_goods = self.settings["n_goods"]
         n_machines = self.settings["n_machines"]
         if machines:
             idx_low = 2*n_prod_goods
@@ -688,20 +888,11 @@ class Overseer:
         supply = np.zeros(n_prod_goods) if not machines else np.zeros(n_machines)
         for properties in self.producers.values():
             inventory = properties["inventory"]
-            try:
-                supply += inventory[idx_low:idx_high]
-            except ValueError:
-                logger.info(f"{inventory=}")
-                logger.info(f"{supply=}")
-                logger.info(f"{idx_low=}")
-                logger.info(f"{idx_high=}")
-                logger.info(f"{machines=}")
-                raise ValueError("Same bug")
-
+            supply += inventory[idx_low:idx_high]
         return supply
 
     def _get_producer_demands(self, machines= False):
-        n_prod_goods = self.settings["n_produced_goods"]
+        n_prod_goods = self.settings["n_goods"]
         if machines:
             idx_low = 2*n_prod_goods
             idx_high = self.settings["n_products"]
@@ -709,7 +900,7 @@ class Overseer:
             idx_low = 0
             idx_high = n_prod_goods
 
-        average_demands = np.zeros(self.settings["n_machines"]) if machines else np.zeros(self.settings["n_produced_goods"])
+        average_demands = np.zeros(self.settings["n_machines"]) if machines else np.zeros(self.settings["n_goods"])
         idx_list = list(range(idx_low, idx_high))
         for i, j in enumerate(idx_list):
             total_demand_j = [producer_dict["demand_signals"][j] for producer_dict in self.producers.values()]# if j in producer_dict["catalog"]]
@@ -717,8 +908,48 @@ class Overseer:
 
         return average_demands
 
+    def get_goods_idxs(self):
+        low = 0
+        hi = self.settings["n_goods"]
+        return low, hi
+
+    def get_consumer_goods_idxs(self):
+        low = self.settings["n_goods"]
+        hi = 2*self.settings["n_goods"]
+        return low, hi
+
+    def get_machine_goods_idxs(self):
+        low = 2*self.settings["n_goods"]
+        hi = 2*self.settings["n_goods"] + self.settings["n_machines"]
+        return low, hi
+
+    def get_sector_idx(self, prod_id):
+        n_goods = self.settings["n_goods"]
+        n_machines = self.settings["n_machines"]
+
+        if prod_id < n_goods:
+            return prod_id
+
+        if prod_id < 2 * n_goods:
+            return n_goods  # distribution sector
+
+        machine_idx = prod_id - 2 * n_goods
+        return n_goods + 1 + machine_idx
+
+    # def get_sector_idx(self, prod_id):
+    #     _, good_hi = self.get_goods_idxs()
+    #     _, c_good_hi = self.get_consumer_goods_idxs()
+
+    #     if prod_id < good_hi:
+    #         return prod_id
+    #     elif prod_id < c_good_hi:
+    #         # only one distribution sector, comes after last good sector
+    #         return good_hi
+    #     else:
+    #         return good_hi + self.settings["n_machines"] % prod_id
+
     def _get_producer_pending_inventories(self, machines= False):
-        n_prod_goods = self.settings["n_produced_goods"]
+        n_prod_goods = self.settings["n_goods"]
         if machines:
             idx_low = 2*n_prod_goods
             idx_high = self.settings["n_products"]
@@ -726,7 +957,7 @@ class Overseer:
             idx_low = 0
             idx_high = n_prod_goods
 
-        average_pending_inventories = np.zeros(self.settings["n_machines"]) if machines else np.zeros(self.settings["n_produced_goods"])
+        average_pending_inventories = np.zeros(self.settings["n_machines"]) if machines else np.zeros(self.settings["n_goods"])
         idx_list = list(range(idx_low, idx_high))
         for i, j in enumerate(idx_list):
             pending_inventory_j = [producer_dict["pending_inventory"][j] for producer_dict in self.producers.values()]# if j in producer_dict["catalog"]]
@@ -735,7 +966,7 @@ class Overseer:
         return average_pending_inventories
 
     def _get_distributor_demands(self, produced= False):
-        n_prod_goods = self.settings["n_produced_goods"]
+        n_prod_goods = self.settings["n_goods"]
         if produced:
             idx_low = 0
             idx_high = n_prod_goods
@@ -743,7 +974,7 @@ class Overseer:
             idx_low = n_prod_goods
             idx_high = 2*n_prod_goods
 
-        average_demands = np.zeros(self.settings["n_produced_goods"])
+        average_demands = np.zeros(self.settings["n_goods"])
         idx_list = list(range(idx_low, idx_high))
         for i,j in enumerate(idx_list):
             total_demand_j = [dist_dict["demand_signals"][j] for dist_dict in self.distributors.values()]# if j in dist_dict["catalog"]]
@@ -752,7 +983,7 @@ class Overseer:
         return average_demands
 
     def _get_distributor_pending_inventories(self, produced= False):
-        n_prod_goods = self.settings["n_produced_goods"]
+        n_prod_goods = self.settings["n_goods"]
         if produced:
             idx_low = 0
             idx_high = n_prod_goods
@@ -760,7 +991,7 @@ class Overseer:
             idx_low = n_prod_goods
             idx_high = 2*n_prod_goods
 
-        average_pending_inventories = np.zeros(self.settings["n_produced_goods"])
+        average_pending_inventories = np.zeros(self.settings["n_goods"])
         idx_list = list(range(idx_low, idx_high))
         for i,j in enumerate(idx_list):
             pending_inventory_j = [dist_dict["pending_inventory"][j] for dist_dict in self.distributors.values()]# if j in dist_dict["catalog"]]
@@ -809,12 +1040,12 @@ class Overseer:
 
     def _get_average_endowments(self, persons):
 
-        n_prod_goods = self.settings["n_produced_goods"]
+        n_prod_goods = self.settings["n_goods"]
         idx_low = n_prod_goods
         idx_high = 2*n_prod_goods
         consumer_goods_idxs = list(range(idx_low, idx_high))
 
-        n_commodities = self.settings["n_commodities"]
+        n_goods = self.settings["n_goods"]
 
         endowments = [dic["endowment"] for _,dic in persons.items()]
         itemwise_endowments = [[] for i in range(n_prod_goods)]
@@ -822,7 +1053,7 @@ class Overseer:
             for j in range(len(persons)):
                 itemwise_endowments[i].append(endowments[j][idx])
 
-        average_endowments = [np.average(itemwise_endowments[i]) for i in range(n_commodities)]
+        average_endowments = [np.average(itemwise_endowments[i]) for i in range(n_goods)]
         return average_endowments
 
     def _get_average_abilities(self, persons):
@@ -839,44 +1070,40 @@ class Overseer:
         return average_proficiencies
 
     def _get_available_employment_by_sector(self):
-        n_sectors = self.settings["n_produced_goods"]+self.settings["n_machines"]+1
-
+        n_sectors = self.settings["n_sectors"]
         sectoral_employment = np.zeros(n_sectors)
         for properties in self.producers.values():
             cat = properties["catalog"]
             employees = properties["employees"]
             for prod_id in cat:
-                if prod_id >= 2*self.settings["n_produced_goods"]:
-                    machine_id = prod_id - self.settings["n_produced_goods"]
-                    sectoral_employment[machine_id] += employees
-                else:
-                    sectoral_employment[prod_id] += employees
+                sector_id = self.get_sector_idx(prod_id)
+                sectoral_employment[sector_id] += employees
 
         for properties in self.distributors.values():
-            sectoral_employment[n_sectors-1] += properties["employees"]
+            sectoral_employment[self.settings["n_goods"]] += properties["employees"]
 
         return sectoral_employment
 
+    def _get_activity_levels_by_sector(self):
+        n_sectors = self.settings["n_sectors"]
+        sectoral_activity_levels = np.zeros(n_sectors)
+
     def _get_sectoral_busyness(self):
-        n_sectors = self.settings["n_produced_goods"]+self.settings["n_machines"]+1
+        n_sectors = self.settings["n_goods"]+self.settings["n_machines"]+1
 
         sectoral_busyness_data = [[] for _ in range(n_sectors)]
         for properties in self.producers.values():
             cat = properties["catalog"]
             busyness = properties["recent_busyness"]
             for prod_id in cat:
-                if prod_id >= 2*self.settings["n_produced_goods"]:
-                    machine_id = prod_id - self.settings["n_produced_goods"]
-                    sectoral_busyness_data[machine_id].append(busyness)
-                else:
-                    sectoral_busyness_data[prod_id].append(busyness)
+                sector_id = self.get_sector_idx(prod_id)
+                sectoral_busyness_data[sector_id].append(busyness)
 
         for properties in self.distributors.values():
-            sectoral_busyness_data[n_sectors-1].append(properties["recent_busyness"])
+            sectoral_busyness_data[self.settings["n_goods"]].append(properties["recent_busyness"])
 
         sectoral_busyness = np.array([np.average(sector) for sector in sectoral_busyness_data])
         return sectoral_busyness
-
 
     def _set_pending_inventories(self):
         for _, producer_dict in self.producers.items():
@@ -886,7 +1113,7 @@ class Overseer:
             distributor_dict["pending_inventory"] = distributor_dict["inventory"]+distributor_dict["inc_inventory"]
 
     def _get_good_type_and_idx(self, id):
-        n_produced_goods = self.settings["n_produced_goods"]
+        n_produced_goods = self.settings["n_goods"]
         if id >= 2*n_produced_goods:
             # machine
             return "machine", id-2*n_produced_goods

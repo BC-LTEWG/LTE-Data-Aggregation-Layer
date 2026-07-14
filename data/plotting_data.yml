@@ -7,8 +7,8 @@ prices:
   ticks_visible: true
   frame_visible: true
   plots:
-    producer_goods_prices:
-      checkbox_name: Producer Goods Prices
+    goods_prices:
+      checkbox_name: Goods Prices
       toggled: true
       linestyle: solid
       linewidth: 1.5
@@ -16,8 +16,8 @@ prices:
       label_template: Price of {i}
       colors: [red, blue, green, purple, orange]
       traj_key: producer_goods_prices
-    producer_goods_values:
-      checkbox_name: Producer Goods Values
+    goods_values:
+      checkbox_name: Goods Values
       toggled: true
       linestyle: dashed
       linewidth: 1.5
@@ -25,8 +25,8 @@ prices:
       label_template: Value of {i}
       colors: [red, blue, green, purple, orange]
       traj_key: producer_goods_values
-    consumption_goods_prices:
-      checkbox_name: Consumption Goods Prices
+    c_goods_prices:
+      checkbox_name: C Goods Prices
       toggled: false
       linestyle: solid
       linewidth: 1.5
@@ -34,8 +34,8 @@ prices:
       label_template: Price of Consumer Product {i}
       colors: [red, blue, green, purple, orange]
       traj_key: consumption_goods_prices
-    consumption_goods_values:
-      checkbox_name: Consumption Goods Values
+    c_goods_values:
+      checkbox_name: C Goods Values
       toggled: false
       linestyle: dotted
       linewidth: 1.5
@@ -70,15 +70,6 @@ prices:
       label_template: Living Labor per Unit for {i}
       colors: [red, blue, green, purple, orange]
       traj_key: l
-    average_order_sizes:
-      checkbox_name: Average Order Sizes
-      toggled: false
-      linestyle: dotted
-      linewidth: 1.5
-      markersize: 6.0
-      label_template: Average Order Size of {i}
-      colors: [red, blue, green, purple, orange]
-      traj_key: order_sizes
   default_lims: [[-3.97061, 11473.9], [-0.0316163, 0.360612]]
 inventory:
   name: Inventory
@@ -142,8 +133,8 @@ demand:
   ticks_visible: true
   frame_visible: true
   plots:
-    demand_overall:
-      checkbox_name: Demand Overall
+    goods_demand:
+      checkbox_name: Goods Demand
       toggled: true
       linestyle: solid
       linewidth: 1.5
@@ -151,8 +142,8 @@ demand:
       label_template: Average Demand for {i}
       colors: [red, blue, green, purple, orange]
       traj_key: average_demand
-    overall_pending_inventories:
-      checkbox_name: Overall Pending Inventories
+    pending_inventories_goods:
+      checkbox_name: Pending Inventories (Goods)
       toggled: true
       linestyle: dotted
       linewidth: 1.5
@@ -160,8 +151,8 @@ demand:
       label_template: Pending Inventory for Produced Good {i}
       colors: [red, blue, green, purple, orange]
       traj_key: average_pending_inventories
-    demand_from_producers:
-      checkbox_name: Demand From Producers
+    goods_demand_producers:
+      checkbox_name: Goods Demand (Producers)
       toggled: false
       linestyle: solid
       linewidth: 1.5
@@ -169,8 +160,8 @@ demand:
       label_template: Average Demand for {i}
       colors: [red, blue, green, purple, orange]
       traj_key: average_demand_producers
-    pending_inventory_producer:
-      checkbox_name: Pending Inventory (Producer)
+    goods_pending_inventory_producers:
+      checkbox_name: Goods Pending Inventory (Producers)
       toggled: false
       linestyle: dashed
       linewidth: 1.5
@@ -178,24 +169,24 @@ demand:
       label_template: Producer Pending Inventory {i}
       colors: [red, blue, green, purple, orange]
       traj_key: average_pending_inventories_producers
-    consumer_goods_demand:
-      checkbox_name: Consumer Goods Demand
+    goods_demand_distributors:
+      checkbox_name: Goods Demand (Distributors)
       toggled: false
       linestyle: solid
       linewidth: 1.5
       markersize: 6.0
-      label_template: Average Demand for C{i}
+      label_template: Distributor Demand for {i}
       colors: [red, blue, green, purple, orange]
-      traj_key: average_demand_distributors
-    pending_inventory_distributor:
-      checkbox_name: Pending Inventory (Distributor)
+      traj_key: average_demand_distributors_goods
+    goods_pending_inventory_distributor:
+      checkbox_name: Goods Pending Inventory (Distributor)
       toggled: false
       linestyle: dotted
       linewidth: 1.5
       markersize: 6.0
       label_template: Distributor Pending Inventory for P{i}
       colors: [red, blue, green, purple, orange]
-      traj_key: average_pending_inventories_distributors
+      traj_key: average_pending_inventories_distributors_goods
     demand_for_machines:
       checkbox_name: Demand for Machines
       toggled: false
@@ -205,15 +196,33 @@ demand:
       label_template: Average Demand for Machine {i}
       colors: [red, blue, green, purple, orange]
       traj_key: average_machine_demand
-    pending_inventory_consumer_goods:
-      checkbox_name: Pending Inventory (Consumer Goods)
+    c_goods_pending_inventory:
+      checkbox_name: C Goods Pending Inventory
       toggled: false
       linestyle: dashed
       linewidth: 1.5
       markersize: 6.0
       label_template: Pending Inventory for C{i}
       colors: [red, blue, green, purple, orange]
-      traj_key: average_pending_inventories_consumption
+      traj_key: average_pending_inventories_c_goods
+    c_goods_demand:
+      checkbox_name: C Goods Demand
+      toggled: false
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Average Demand for C{i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: average_demand_distributors_c_goods
+    machines_pending_inventory:
+      checkbox_name: Machines Pending Inventory
+      toggled: true
+      linestyle: dashed
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Pending Inventory for Machine {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: average_machine_pending_inventory
   default_lims: [[63.5485, 4851.18], [-2476.07, 5858.99]]
 income:
   name: Income
@@ -251,6 +260,15 @@ income:
       labels: [Maximum Account]
       colors: ['#00807c']
       traj_key: max_account
+    fic:
+      checkbox_name: FIC
+      toggled: true
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      labels: [FIC]
+      colors: ['#42efff']
+      traj_key: fic
   default_lims: [[38.6696, 4344.33], [4279.01, 5059.11]]
 dependency_graph:
   name: Dependency Graph
@@ -278,35 +296,116 @@ plans:
   ticks_visible: true
   frame_visible: true
   plots:
-    plans_in_progress:
-      checkbox_name: Plans in Progress
+    plans_in_progress_goods:
+      checkbox_name: Plans in Progress (Goods)
       toggled: false
       linestyle: solid
       linewidth: 1.5
       markersize: 6.0
       label_template: Plans in Progress for {i}
       colors: [red, blue, green, purple, orange]
-      traj_key: plans_in_progress
-    quantities_in_production:
-      checkbox_name: Quantities in Production
+      traj_key: plans_in_progress_goods
+    plans_in_progress_c_goods:
+      checkbox_name: Plans in Progress (C Goods)
+      toggled: false
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Plans in Progress for {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: plans_in_progress_c_goods
+    plans_in_progress_machines:
+      checkbox_name: Plans in Progress (Machines)
+      toggled: false
+      linestyle: dashed
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Plans in Progress for {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: plans_in_progress_machines
+    quantities_in_production_goods:
+      checkbox_name: Quantities in Production (Goods)
       toggled: false
       linestyle: dashed
       linewidth: 1.5
       markersize: 6.0
       label_template: Amount of {i} in production
       colors: [red, blue, green, purple, orange]
-      traj_key: goods_in_production
-    reorder_attempts:
-      checkbox_name: Reorder Attempts
+      traj_key: goods_in_production_goods
+    quantities_in_production_c_goods:
+      checkbox_name: Quantities in Production (C Goods)
+      toggled: false
+      linestyle: dashed
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Amount of {i} in production
+      colors: [red, blue, green, purple, orange]
+      traj_key: goods_in_production_c_goods
+    quantities_in_production_machines:
+      checkbox_name: Quantities in Production (Machines)
       toggled: false
       linestyle: dotted
       linewidth: 1.5
       markersize: 6.0
-      label_template: Reorders Placed for {i}
+      label_template: Amount of {i} in production
       colors: [red, blue, green, purple, orange]
-      traj_key: reorder_requests
-    long_run_activity_levels:
-      checkbox_name: Long Run Activity Levels
+      traj_key: goods_in_production_machines
+    reorder_attempts_goods:
+      checkbox_name: Reorder Attempts (Goods)
+      toggled: false
+      linestyle: dotted
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Reorders Requests for {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: reorder_requests_goods
+    reorder_attempts_c_goods:
+      checkbox_name: Reorder Attempts (C Goods)
+      toggled: false
+      linestyle: dashed
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Reorders Requests for C{i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: reorder_requests_c_goods
+    reorder_attempts_machines:
+      checkbox_name: Reorder Attempts (Machines)
+      toggled: false
+      linestyle: dotted
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Reorders Placed for Machine {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: reorder_requests_machines
+    reorder_failures_goods:
+      checkbox_name: Reorder Failures (Goods)
+      toggled: false
+      linestyle: dashed
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Hourly Reorder Failure Good {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: hrly_reorder_failure_goods
+    reorder_failures_c_goods:
+      checkbox_name: Reorder Failures (C Goods)
+      toggled: false
+      linestyle: dotted
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Reorder Failures Consumer Good {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: hrly_reorder_failure_c_goods
+    reorder_failures_machines:
+      checkbox_name: Reorder Failures (Machines)
+      toggled: false
+      linestyle: dashed
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Hourly Reorder Failure Machine {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: hrly_reorder_failure_machines
+    sectoral_activity_levels:
+      checkbox_name: Sectoral Activity Levels
       toggled: true
       linestyle: solid
       linewidth: 1.5
@@ -314,24 +413,15 @@ plans:
       label_template: Long Run Activity Level of Sector {i}
       colors: [red, blue, green, purple, orange]
       traj_key: long_run_activity
-    minimum_hourly_output:
-      checkbox_name: Minimum Hourly Output
+    equilibrium_activity_levels:
+      checkbox_name: Equilibrium Activity Levels
       toggled: true
       linestyle: dashed
       linewidth: 1.5
       markersize: 6.0
-      label_template: Min Hourly Output of {i}
+      label_template: Min Hourly Output of Good {i}
       colors: [red, blue, green, purple, orange]
       traj_key: min_hrly_output
-    long_run_actual_activity_levels:
-      checkbox_name: Long Run Actual Activity Levels
-      toggled: false
-      linestyle: dashed
-      linewidth: 1.5
-      markersize: 6.0
-      label_template: Long Run Activity Level of Sector {i}
-      colors: [red, blue, green, purple, orange]
-      traj_key: long_run_actual_activity
   default_lims: [[-70.7403, 6031.76], [-6.75846, 160.768]]
 health:
   name: Health
@@ -434,6 +524,24 @@ employment:
       label_template: Minimum Necessary Employment for Sector {i}
       colors: [red, blue, green, purple, orange]
       traj_key: eqb_employment
+    total_trapped_workers:
+      checkbox_name: Total Trapped Workers
+      toggled: false
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      labels: [Trapped Workers]
+      colors: ['#ff19e8']
+      traj_key: total_trapped
+    sectoral_trapped_workers:
+      checkbox_name: Sectoral Trapped Workers
+      toggled: false
+      linestyle: dotted
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Workers Trapped in Sector {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: sectoral_trapped
   default_lims: [[192.559, 24324.7], [-6.75752, 44.7207]]
 consumption_initialization:
   name: Consumption Initialization
@@ -548,4 +656,94 @@ busyness:
       edgecolors: [Black]
       histtype: bar
       align: left
+    length_of_working_day:
+      checkbox_name: Length of Working Day
+      toggled: false
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      labels: [Length of Working Day]
+      colors: [green]
+      traj_key: work_hours_daily
   default_lims: [[-34.6118, 27984.9], [-0.0651938, 0.436073]]
+order_sizes:
+  name: Order Sizes
+  tooltip: null
+  plots:
+    goods_order_sizes:
+      checkbox_name: Goods Order Sizes
+      toggled: true
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Order Size for Good {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: order_sizes_goods
+    c_goods_order_sizes:
+      checkbox_name: C Goods Order Sizes
+      toggled: false
+      linestyle: dashed
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Order Size for C Good {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: order_sizes_c_goods
+    machine_order_sizes:
+      checkbox_name: Machine Order Sizes
+      toggled: true
+      linestyle: dotted
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Order Size of Machine {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: order_sizes_machines
+  projection: 2d
+  axis_visible: true
+  grid_visible: true
+  ticks_visible: true
+  frame_visible: true
+public_sector:
+  name: Public Sector
+  tooltip: null
+  plots:
+    public_fund:
+      checkbox_name: Public Fund
+      toggled: true
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      labels: [Public Fund]
+      colors: [blue]
+      traj_key: public_fund
+    public_revenue:
+      checkbox_name: Public Revenue
+      toggled: false
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      labels: [Public Revenue]
+      colors: [green]
+      traj_key: public_revenue
+    public_expenditure:
+      checkbox_name: Public Expenditure
+      toggled: true
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      labels: [Public Expenditure]
+      colors: [red]
+      traj_key: public_expenditure
+    fic:
+      checkbox_name: FIC
+      toggled: true
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      labels: [FIC]
+      colors: ['#42efff']
+      traj_key: fic
+  projection: 2d
+  axis_visible: true
+  grid_visible: true
+  ticks_visible: true
+  frame_visible: true

@@ -8,8 +8,7 @@ def format_plot_config(params, plotting_data):
     data = deepcopy(plotting_data)
 
     n_produced = params.N_c
-    prods_per_machine = params.m_r
-    n_machines = n_produced // prods_per_machine
+    n_machines = params.N_m
 
     employment_plots = data["employment"]["plots"]
     sectoral_employment = employment_plots["sectoral_employment"]
