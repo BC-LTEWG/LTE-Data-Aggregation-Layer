@@ -69,7 +69,6 @@ class Overseer:
         self.collector.start_sim_and_begin_collection()
 
         # internal stuff
-        self.text_log = []
         self.t = [0]
         self.current_t = 0
         self.stdout_done = False
@@ -144,6 +143,11 @@ class Overseer:
         client = dic.get("client", "")
         label = dic.get("label", "")
         values = dic.get("values", [])
+
+        if label == "text_log":
+            self.log_text(dic)
+            return
+
         match client:
             case "Simulation":
                 if label == "random_seed":
@@ -521,6 +525,20 @@ class Overseer:
                                         required: {required} \n \
                                         available: {available}")
 
+    def log_text(self, dic):
+        extra = {
+            "client": "Society",
+            "time": self.current_t,
+        }
+        msg = "\n"
+        for key, value in dic.items():
+            if key in ("id", "client", "level", "t", "label"):
+                continue
+
+            msg += f"   {key}: {value}\n"
+            
+        level = dic.get("level", 20)
+        logger.log(level, msg, extra= extra)
 
     def _update_hourly_stats(self):
         """ 
@@ -576,7 +594,21 @@ class Overseer:
         machines_reorder_failures = self.reorder_failures[m_lo:m_hi]
         c_good_reorder_failures = self.reorder_failures[c_good_lo:c_good_hi]
 
-        order_size_averages = np.array([np.average(orders) for orders in self.order_sizes])
+        sectoral_employment = self._get_available_employment_by_sector()
+        sectoral_busyness = self._get_sectoral_busyness()
+
+        goods_reorder_failures = self.reorder_failures[good_lo:good_hi]
+        machines_reorder_failures = self.reorder_failures[m_lo:m_hi]
+        c_good_reorder_failures = self.reorder_failures[c_good_lo:c_good_hi]
+
+        order_size_averages = np.array([np.average(orders) if len(orders) > 0 else -1 for orders in self.order_sizes])
+
+        busyness_data = np.asarray(self.overall_busyness_data)
+        if len(self.overall_busyness_data) > 0:
+            low, hi = np.quantile(busyness_data, [0.005, 0.995])
+            overall_busyness_bins = np.linspace(low, hi, 100)
+        else:
+            overall_busyness_bins = np.array([0.5])
 
         busyness_data = np.asarray(self.overall_busyness_data)
         if len(self.overall_busyness_data) > 0:
@@ -683,7 +715,7 @@ class Overseer:
         if self.current_t == 0:
             self.traj["A"] = Replace(self.A)
             if hasattr(self, "seed"):
-                logger.info(f"Adding seed {int(self.seed)} to update entry in traj")
+                # logger.info(f"Adding seed {int(self.seed)} to update entry in traj")
                 self.traj["seed"] = Update(
                     details= {"param": "seed", "value": int(self.seed)}
                 )
@@ -773,16 +805,11 @@ class Overseer:
                 if item.kind == "eof":
                     self.stderr_done = True
                 else:
-                    self.text_log.append((self.current_t, "stderr", item.payload))
-                continue
+                    logger.info(f"Standard Error: {item.payload}")
 
             if item.stream == "stdout":
                 if item.kind == "eof":
                     self.stdout_done = True
-                else:
-                    if self.is_logging:
-                        with open(self.log_path, "a") as f:
-                            print(item.payload, file= f)
 
                 if item.kind == "json":
                     dic = item.payload
@@ -800,8 +827,8 @@ class Overseer:
                     else:
                         self._process_dic(dic)
                 else:
-                    # item.kind == "text"
-                    self.text_log.append((self.current_t, "stdout", item.payload))
+                    # item is text, not json, so just log it
+                    logger.info(f"Standard Output: {item.payload}")
                 continue
 
             if self.stdout_done and self.stderr_done:
@@ -833,8 +860,7 @@ class Overseer:
             "--init_prices", str(self.settings["init_prices"])
         ]
 
-        logger.info(f"{self.settings["fixed_seed"]=}")
-        logger.info(f"{self.settings["seed"]=}")
+        logger.info(f"\n   {self.settings["fixed_seed"]=}, \n   {self.settings["seed"]=}")
         if self.settings["fixed_seed"]:
             args.append("-e")
             args.append(str(self.settings["seed"]))
