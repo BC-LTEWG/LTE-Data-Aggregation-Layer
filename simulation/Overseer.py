@@ -594,7 +594,21 @@ class Overseer:
         machines_reorder_failures = self.reorder_failures[m_lo:m_hi]
         c_good_reorder_failures = self.reorder_failures[c_good_lo:c_good_hi]
 
+        sectoral_employment = self._get_available_employment_by_sector()
+        sectoral_busyness = self._get_sectoral_busyness()
+
+        goods_reorder_failures = self.reorder_failures[good_lo:good_hi]
+        machines_reorder_failures = self.reorder_failures[m_lo:m_hi]
+        c_good_reorder_failures = self.reorder_failures[c_good_lo:c_good_hi]
+
         order_size_averages = np.array([np.average(orders) if len(orders) > 0 else -1 for orders in self.order_sizes])
+
+        busyness_data = np.asarray(self.overall_busyness_data)
+        if len(self.overall_busyness_data) > 0:
+            low, hi = np.quantile(busyness_data, [0.005, 0.995])
+            overall_busyness_bins = np.linspace(low, hi, 100)
+        else:
+            overall_busyness_bins = np.array([0.5])
 
         busyness_data = np.asarray(self.overall_busyness_data)
         if len(self.overall_busyness_data) > 0:
