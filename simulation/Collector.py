@@ -80,7 +80,6 @@ class Collector:
                     try:
                         self.output_queue.put(StreamItem("stdout", "json", json.loads(line)))
                     except json.JSONDecodeError:
-                        print(f"Exception for {line=}?")
                         self.output_queue.put(StreamItem("stdout", "text", line))
                 else:
                     self.output_queue.put(StreamItem("stderr", "text", line))

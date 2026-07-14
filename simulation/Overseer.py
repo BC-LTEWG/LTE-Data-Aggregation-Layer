@@ -65,6 +65,14 @@ class Overseer:
 
         # create and start the collection thread
         args = self._get_args_from_settings()
+
+        cli_cmd = bin_path + " "
+        for arg in args:
+            cli_cmd += arg
+            cli_cmd += " "
+
+        logger.info(f"Running binary with command: \n   {cli_cmd}")
+
         self.collector = Collector(bin_path, args)
         self.collector.start_sim_and_begin_collection()
 
