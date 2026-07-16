@@ -70,7 +70,7 @@ prices:
       label_template: Living Labor per Unit for {i}
       colors: [red, blue, green, purple, orange]
       traj_key: l
-  default_lims: [[-3.97061, 11473.9], [-0.0316163, 0.360612]]
+  default_lims: [[14.6784, 1695.85], [0.0861712, 0.281614]]
 inventory:
   name: Inventory
   projection: 2d
@@ -702,6 +702,7 @@ order_sizes:
   grid_visible: true
   ticks_visible: true
   frame_visible: true
+  default_lims: [[-36.0514, 4371.32], [-890.618, 6510.3]]
 public_sector:
   name: Public Sector
   tooltip: null
@@ -747,3 +748,4 @@ public_sector:
   grid_visible: true
   ticks_visible: true
   frame_visible: true
+  default_lims: [[142.249, 5679.75], [-3234.89, 1223.0]]

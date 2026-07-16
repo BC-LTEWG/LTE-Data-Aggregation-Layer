@@ -23,3 +23,4 @@ class Params:
     productivity: float = 0.5
     consump_epsilon: float = 0.6
     init_prices: str = 'labor_values'
+    exe_path: str = '/home/alex/github/Labor-Time-Economy-Simulation/bin/sim'

@@ -17,21 +17,8 @@ np.set_printoptions(
 
 class Overseer:
     """ The guy who watches the LTE and keeps track of the data. """
-    def __init__(self, bin_path, params, log_path_str: str | None = None):
+    def __init__(self, bin_path, params):
         self.params = params
-
-        if log_path_str is not None:
-            log_path = Path(log_path_str).expanduser().resolve()
-            log_filename = log_path.name
-            log_parent_dir = log_path.parent
-            if log_parent_dir.exists():
-                self.log_path = log_path
-                with open(log_path, "w") as f:
-                    pass
-            else:
-                self.log_path = None
-        else:
-            self.log_path = None
 
         # create a more human readable dictionary of helpful quantities
         self.settings = {

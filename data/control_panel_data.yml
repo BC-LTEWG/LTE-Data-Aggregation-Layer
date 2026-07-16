@@ -1,6 +1,12 @@
 divider1:
   title: Parameters
 row1:
+  exe_path:
+    param_name: exe_path
+    control_type: file_picker
+    label: 'Binary path: '
+    tooltip: Location of binary.
+row2:
   N_S:
     param_name: N_S
     tooltip: Number of time steps to simulate
@@ -25,7 +31,7 @@ row1:
     scalar_type: int
     range: [1, 7]
     label: $W=$
-row2:
+row3:
   N_c:
     param_name: N_c
     tooltip: Number of commodities (circulating goods)
@@ -50,7 +56,7 @@ row2:
     range: [1, 100]
     label: $N_a=$
     tooltip: Number of abilities
-row3:
+row4:
   N_m:
     param_name: N_m
     tooltip: Number of machines
@@ -75,7 +81,7 @@ row3:
     scalar_type: int
     range: [1, 100]
     label: $N_d=$
-row4:
+row5:
   S:
     param_name: S
     control_type: entry_block
@@ -100,7 +106,7 @@ row4:
     range: [1, 10]
     label: $N_i=$
     tooltip: Max number of inputs per good
-row5:
+row6:
   productivity:
     param_name: productivity
     control_type: entry_block
@@ -117,7 +123,7 @@ row5:
     range: [0.0, 1.0]
     label: $\epsilon_c=$
     tooltip: ''
-row6:
+row7:
   init_prices:
     control_type: dropdown
     label: Initial Prices
@@ -126,7 +132,7 @@ row6:
     names: [Labor Values, Equilibrium Prices]
     values: [labor_values, equilibrium_prices]
     use_names_func: false
-row7:
+row8:
   fixed_seed:
     control_type: checkbox
     label: Fixed Seed
