@@ -3,6 +3,7 @@ __pycache__/
 *.pyc
 *.txt
 *.jsonl
+data/params.yml
 test.py
 Agent-Based-Simulation-Model/
 saved_results/
