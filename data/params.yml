@@ -1,0 +1,24 @@
+presets:
+  default_preset:
+    name: default_preset
+    desc: ''
+    params:
+      N_c: 5
+      N_S: 10000
+      N_h: 100
+      N_inputs_max: 5
+      N_m: 1
+      N_p: 5
+      N_d: 5
+      W: 5
+      T: 8
+      S: 0.1
+      v_ability: 0.1
+      N_a: 5
+      fixed_seed: false
+      seed: 830830000
+      is_logging: false
+      productivity: 0.5
+      consump_epsilon: 0.6
+      init_prices: labor_values
+      exe_path: /media/Big-Boy/Nextcloud/Personal-Programming/Labor-Time-Economy-Simulation/bin/sim

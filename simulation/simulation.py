@@ -10,6 +10,7 @@ import json
 from scipy.linalg import inv
 
 def get_trajectories(params: Params, event_queue):
+    logger.info(params.exe_path)
     overseer = Overseer(params.exe_path, params)
     try:
         sim_finished = False

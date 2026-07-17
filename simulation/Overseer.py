@@ -69,6 +69,8 @@ class Overseer:
         self.stdout_done = False
         self.stderr_done = False
 
+        self.current_cout = []
+
         self.fic = 0.0
         self.average_consumer_goods_value = 0.0
         self.average_public_sector_consumer_goods_value = 0.0
@@ -799,14 +801,21 @@ class Overseer:
             if item.stream == "stderr":
                 if item.kind == "eof":
                     self.stderr_done = True
+                    if len(self.current_cout) > 0:
+                        self._log_cout_and_clear()
                 else:
                     logger.info(f"Standard Error: {item.payload}")
 
             if item.stream == "stdout":
                 if item.kind == "eof":
                     self.stdout_done = True
+                    if len(self.current_cout) > 0:
+                        self._log_cout_and_clear()
 
                 if item.kind == "json":
+                    if len(self.current_cout) > 0:
+                        self._log_cout_and_clear()
+
                     dic = item.payload
                     if self.current_t != dic["t"]:
                         if self.current_t == 0:
@@ -822,8 +831,7 @@ class Overseer:
                     else:
                         self._process_dic(dic)
                 else:
-                    # item is text, not json, so just log it
-                    logger.info(f"Standard Output: {item.payload}")
+                    self.current_cout.append(item.payload)
                 continue
 
             if self.stdout_done and self.stderr_done:
@@ -834,6 +842,15 @@ class Overseer:
             return self.traj
         else:
             return {}
+
+    def _log_cout_and_clear(self):
+        msg = "Standard Output: \n   "
+        for entry in self.current_cout:
+            msg += entry
+            msg += "\n   "
+
+        logger.info(msg)
+        self.current_cout.clear()
 
     def _get_args_from_settings(self):
         args = [

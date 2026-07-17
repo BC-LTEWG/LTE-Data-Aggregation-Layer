@@ -5,6 +5,7 @@ row1:
     param_name: exe_path
     control_type: file_picker
     label: 'Binary path: '
+    mode: file
     tooltip: Location of binary.
 row2:
   N_S:
