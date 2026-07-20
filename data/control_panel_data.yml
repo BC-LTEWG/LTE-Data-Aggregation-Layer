@@ -33,9 +33,9 @@ row2:
     range: [1, 7]
     label: $W=$
 row3:
-  N_c:
-    param_name: N_c
-    tooltip: Number of commodities (circulating goods)
+  N_g:
+    param_name: N_g
+    tooltip: Number of goods
     control_type: entry_block
     type: scalar
     scalar_type: int
@@ -148,3 +148,19 @@ row8:
     range: [0, 10000]
     label: 'Seed = '
     tooltip: ''
+  free_goods:
+    control_type: checkbox
+    label: Free Goods
+    tooltip: If checked, a random good will be made free every $\Delta_F$ many time
+      steps.
+    param_name: free_goods
+    change_effect: send_message
+  new_free_good_interval:
+    param_name: new_free_good_interval
+    control_type: entry_block
+    type: scalar
+    scalar_type: int
+    range: [1, 10000]
+    label: $\Delta_F=$
+    tooltip: After this many time steps, a new random good is made free through public
+      sector taxation.

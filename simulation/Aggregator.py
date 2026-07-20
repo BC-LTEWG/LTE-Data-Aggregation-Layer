@@ -15,14 +15,14 @@ np.set_printoptions(
     linewidth=200     # avoid wrapping rows too early
 )
 
-class Overseer:
+class Aggregator:
     """ The guy who watches the LTE and keeps track of the data. """
     def __init__(self, bin_path, params):
         self.params = params
 
         # create a more human readable dictionary of helpful quantities
         self.settings = {
-            "n_goods": params.N_c,
+            "n_goods": params.N_g,
             "n_machines": params.N_m,
             "max_num_inputs_per_good": params.N_inputs_max,
             "n_time_steps": params.N_S,
@@ -31,7 +31,7 @@ class Overseer:
             "fixed_seed": params.fixed_seed,
             "seed": params.seed,
             "n_producers": params.N_p,
-            "n_distributors": params.N_c,
+            "n_distributors": params.N_g,
             "init_working_day": params.T,
             "init_working_week": params.W,
             "daily_sick_chance": params.S,
@@ -40,15 +40,13 @@ class Overseer:
             "productivity": params.productivity,
             "consump_epsilon": params.consump_epsilon,
             # the rest of these are d if pending_inventory_j else 0ependent variables
-            "n_sectors": params.N_c + params.N_m + 1,
-            "n_consumer_goods": params.N_c,
-            # "n_machines": params.N_c // params.m_r,
-            "n_products": 2 * params.N_c + params.N_m,
-            "init_prices": params.init_prices
+            "n_sectors": params.N_g + params.N_m + 1,
+            "n_consumer_goods": params.N_g,
+            "n_products": 2 * params.N_g + params.N_m,
+            "init_prices": params.init_prices,
+            "free_goods": params.free_goods,
+            "new_free_good_interval": params.new_free_good_interval
         }
-
-        reasonable_logs = params.N_c < 10 and params.N_S <= 3000 and params.N_h < 100
-        self.is_logging = params.is_logging and reasonable_logs and self.log_path is not None
 
         # create and start the collection thread
         args = self._get_args_from_settings()
@@ -77,8 +75,6 @@ class Overseer:
         self.public_fund = 0.0
         self.public_expenditure = 0.0
         self.public_revenue = 0.0
-        self.trapped_workers_total = 0
-        self.trapped_workers_per_sector = [0]*self.settings["n_sectors"]
 
         # HERE IS WHERE YOU WOULD DECLARE ANY QUANTITIES WHICH YOU WANT THE OVERSEER TO KEEP TRACK OF
         self.prices = np.zeros(self.settings["n_products"])
@@ -359,29 +355,6 @@ class Overseer:
                     quantity = dic["quantity"]
                     self.order_sizes[prod_id].append(quantity)
 
-                if label == "trapped_workers":
-                    prod_id = dic["product"]
-                    n_workers = dic["n_workers"]
-                    sector_idx = self.get_sector_idx(prod_id)
-                    self.trapped_workers_total += n_workers
-                    self.trapped_workers_per_sector[sector_idx] += n_workers
-
-                if label == "plan_start_failure":
-                    prod_id = dic["product_id"]
-                    cust_id = dic["customer_id"]
-                    n_workers = dic["n_workers"]
-                    missing_input = dic["missing_input_id"]
-                    required = dic["required"]
-                    available = dic["available"]
-
-                    logger.warning(f"Plan start failure! \n \
-                                        product id: {prod_id} \n \
-                                        cust_id: {cust_id} \n \
-                                        n_workers: {n_workers} \n \
-                                        missing_input: {missing_input} \n \
-                                        required: {required} \n \
-                                        available: {available}")
-
             case "Distributor":
                 if label == "inventory_level":
                     prod_id = dic["product_id"]
@@ -498,29 +471,6 @@ class Overseer:
                     amt = dic["quantity"]
                     self.active_plans[prod_id]["plans"] -= 1
                     self.active_plans[prod_id]["quantity"] -= amt
-
-                if label == "trapped_workers":
-                    prod_id = dic["product"]
-                    n_workers = dic["n_workers"]
-                    sector_idx = self.get_sector_idx(prod_id)
-                    self.trapped_workers_total += n_workers
-                    self.trapped_workers_per_sector[sector_idx] += n_workers
-
-                if label == "plan_start_failure":
-                    prod_id = dic["product_id"]
-                    cust_id = dic["customer_id"]
-                    n_workers = dic["n_workers"]
-                    missing_input = dic["missing_input_id"]
-                    required = dic["required"]
-                    available = dic["available"]
-
-                    logger.warning(f"Plan start failure! \n \
-                                        product id: {prod_id} \n \
-                                        cust_id: {cust_id} \n \
-                                        n_workers: {n_workers} \n \
-                                        missing_input: {missing_input} \n \
-                                        required: {required} \n \
-                                        available: {available}")
 
     def log_text(self, dic):
         extra = {
@@ -699,15 +649,13 @@ class Overseer:
             "work_hours_daily": Append(self.weekly_working_hours / self.settings["init_working_week"]),
             "transfer_requests_by_sector_t": Replace(self.transfer_requests_by_sector_t),
 
-            "total_trapped": Append(self.trapped_workers_total),
-            "sectoral_trapped": Append(self.trapped_workers_per_sector),
-
             "fic": Append(self.fic),
             "average_consumer_goods_value": Append(self.average_consumer_goods_value),
             "public_fund": Append(self.public_fund),
             "public_revenue": Append(self.public_revenue),
             "public_expenditure": Append(self.public_expenditure),
-            "average_public_sector_consumer_goods_value": Append(self.average_public_sector_consumer_goods_value)
+            "average_public_sector_consumer_goods_value": Append(self.average_public_sector_consumer_goods_value),
+
         }
         if self.current_t == 0:
             self.traj["A"] = Replace(self.A)
@@ -721,8 +669,6 @@ class Overseer:
         self.reorder_requests = np.zeros(self.settings["n_products"])
         self.reorder_failures = np.zeros(self.settings["n_products"])
         self.reorder_failure_volumes = np.zeros(self.settings["n_products"])
-        self.trapped_workers_total = 0
-        self.trapped_workers_per_sector = [0]*self.settings["n_sectors"]
 
     def initialize_properties(self):
         N = self.settings["n_persons"]
@@ -831,7 +777,8 @@ class Overseer:
                     else:
                         self._process_dic(dic)
                 else:
-                    self.current_cout.append(item.payload)
+                    if item.payload is not None:
+                        self.current_cout.append(item.payload)
                 continue
 
             if self.stdout_done and self.stderr_done:
@@ -869,13 +816,17 @@ class Overseer:
             "-i", str(self.settings["max_num_inputs_per_good"]),
             "--production_difficulty", str(self.settings["productivity"]),
             "--consumption_demand", str(self.settings["consump_epsilon"]),
-            "--init_prices", str(self.settings["init_prices"])
+            "--init_prices", str(self.settings["init_prices"]),
         ]
 
         logger.info(f"\n   {self.settings["fixed_seed"]=}, \n   {self.settings["seed"]=}")
         if self.settings["fixed_seed"]:
             args.append("-e")
             args.append(str(self.settings["seed"]))
+
+        if self.settings["free_goods"]:
+            args.append("--public_sector_expansion_period")
+            args.append(str(self.settings["new_free_good_interval"]))
 
         return args
 

@@ -224,8 +224,8 @@ demand:
       colors: [red, blue, green, purple, orange]
       traj_key: average_machine_pending_inventory
   default_lims: [[63.5485, 4851.18], [-2476.07, 5858.99]]
-income:
-  name: Income
+wealth:
+  name: Wealth
   projection: 2d
   axis_visible: true
   grid_visible: true
@@ -269,7 +269,7 @@ income:
       labels: [FIC]
       colors: ['#42efff']
       traj_key: fic
-  default_lims: [[38.6696, 4344.33], [4279.01, 5059.11]]
+  default_lims: [[7.78144, 2216.37], [-266.848, 2611.92]]
 dependency_graph:
   name: Dependency Graph
   projection: 2d
@@ -298,7 +298,7 @@ plans:
   plots:
     plans_in_progress_goods:
       checkbox_name: Plans in Progress (Goods)
-      toggled: false
+      toggled: true
       linestyle: solid
       linewidth: 1.5
       markersize: 6.0
@@ -307,8 +307,8 @@ plans:
       traj_key: plans_in_progress_goods
     plans_in_progress_c_goods:
       checkbox_name: Plans in Progress (C Goods)
-      toggled: false
-      linestyle: solid
+      toggled: true
+      linestyle: dashed
       linewidth: 1.5
       markersize: 6.0
       label_template: Plans in Progress for {i}
@@ -316,8 +316,8 @@ plans:
       traj_key: plans_in_progress_c_goods
     plans_in_progress_machines:
       checkbox_name: Plans in Progress (Machines)
-      toggled: false
-      linestyle: dashed
+      toggled: true
+      linestyle: dotted
       linewidth: 1.5
       markersize: 6.0
       label_template: Plans in Progress for {i}
@@ -404,6 +404,16 @@ plans:
       label_template: Hourly Reorder Failure Machine {i}
       colors: [red, blue, green, purple, orange]
       traj_key: hrly_reorder_failure_machines
+  default_lims: [[9.6658, 6078.53], [-1.13537, 21.484]]
+activity:
+  name: Activity
+  title: Activity
+  projection: 2d
+  axis_visible: true
+  grid_visible: true
+  ticks_visible: true
+  frame_visible: true
+  plots:
     sectoral_activity_levels:
       checkbox_name: Sectoral Activity Levels
       toggled: true
@@ -422,7 +432,7 @@ plans:
       label_template: Min Hourly Output of Good {i}
       colors: [red, blue, green, purple, orange]
       traj_key: min_hrly_output
-  default_lims: [[-70.7403, 6031.76], [-6.75846, 160.768]]
+  default_lims: [[34.2447, 4736.29], [-10.0463, 257.993]]
 health:
   name: Health
   title: Health
@@ -579,27 +589,6 @@ consumption_initialization:
       colors: [red, blue, green, orange, purple]
       traj_key: b
   default_lims: [[0.969968, 68.9784], [-0.00382333, 0.0235336]]
-employment_histograms:
-  name: Employment Histograms
-  projection: 2d
-  axis_visible: true
-  grid_visible: true
-  ticks_visible: true
-  frame_visible: true
-  plots:
-    sectoral_employment:
-      special: hist
-      checkbox_name: Sectoral Employment
-      toggled: true
-      dist: available_employment_by_sector
-      density: false
-      gradient: None
-      label_template: Employment in Sector {i}
-      colors: [red, blue, green, purple, orange]
-      edgecolors: [black, black, black, black, black]
-      histtype: bar
-      align: left
-  default_lims: [[-1.36005, 45.5246], [-9.07633, 4307.49]]
 busyness:
   name: Busyness
   projection: 2d
