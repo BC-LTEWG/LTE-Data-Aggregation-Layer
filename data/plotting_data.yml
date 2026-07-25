@@ -655,8 +655,8 @@ busyness:
       colors: [green]
       traj_key: work_hours_daily
   default_lims: [[-34.6118, 27984.9], [-0.0651938, 0.436073]]
-order_sizes:
-  name: Order Sizes
+plan_details:
+  name: Plan Details
   tooltip: null
   plots:
     goods_order_sizes:
@@ -671,21 +671,75 @@ order_sizes:
     c_goods_order_sizes:
       checkbox_name: C Goods Order Sizes
       toggled: false
-      linestyle: dashed
+      linestyle: solid
       linewidth: 1.5
       markersize: 6.0
       label_template: Order Size for C Good {i}
-      colors: [red, blue, green, purple, orange]
+      colors: ['#ff4c4c', '#4e2fff', '#488045', '#803e63', '#ffc76c']
       traj_key: order_sizes_c_goods
     machine_order_sizes:
       checkbox_name: Machine Order Sizes
       toggled: true
-      linestyle: dotted
+      linestyle: solid
       linewidth: 1.5
       markersize: 6.0
       label_template: Order Size of Machine {i}
-      colors: [red, blue, green, purple, orange]
+      colors: ['#0ffbff', '#1eff2d', '#df03db']
       traj_key: order_sizes_machines
+    goods_lead_times:
+      checkbox_name: Goods Lead Times
+      toggled: true
+      linestyle: dashed
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Lead Times for Good {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: lead_times_goods
+    c_goods_lead_times:
+      checkbox_name: C Goods Lead Times
+      toggled: false
+      linestyle: dashed
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Lead Times for C Good {i}
+      colors: ['#ff4c4c', '#4e2fff', '#488045', '#803e63', '#ffc76c']
+      traj_key: lead_times_c_goods
+    machine_lead_times:
+      checkbox_name: Machine Lead Times
+      toggled: true
+      linestyle: dashed
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Lead Times for Machine {i}
+      colors: ['#0ffbff', '#1eff2d', '#df03db']
+      traj_key: lead_times_machines
+    goods_team_sizes:
+      checkbox_name: Goods Team Sizes
+      toggled: true
+      linestyle: dotted
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Team Size for Good {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: team_sizes_goods
+    c_goods_team_sizes:
+      checkbox_name: C Goods Team Sizes
+      toggled: false
+      linestyle: dotted
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Team Size for C Good {i}
+      colors: ['#ff4c4c', '#4e2fff', '#488045', '#803e63', '#ffc76c']
+      traj_key: team_sizes_c_goods
+    machine_team_sizes:
+      checkbox_name: Machine Team Sizes
+      toggled: true
+      linestyle: dotted
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Team Size of Machine {i}
+      colors: ['#0ffbff', '#1eff2d', '#df03db']
+      traj_key: team_sizes_machines
   projection: 2d
   axis_visible: true
   grid_visible: true
