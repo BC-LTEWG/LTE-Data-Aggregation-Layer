@@ -4,6 +4,7 @@ from numpy import array, ndarray
 
 @dataclass
 class Params:
+    exe_path: str
     N_g: int = 5
     N_S: int = 10000
     N_h: int = 100
@@ -22,6 +23,5 @@ class Params:
     productivity: float = 0.5
     consump_epsilon: float = 0.6
     init_prices: str = 'labor_values'
-    exe_path: str = '/home/alex/github/Labor-Time-Economy-Simulation/bin/sim'
     free_goods: bool = False
     new_free_good_interval: int = 2160
