@@ -860,9 +860,17 @@ class Aggregator:
         dim = self.A.shape[0]
         self.values = inv(np.eye(dim) - self.A.T)@self.l
 
+        logger.info(f"A = \n{np.array2string(
+            self.A,
+            formatter={"float_kind": lambda x: f"{x:10.7f}"}
+        )}")
+
         (evals, evecs) = eig(self.A)
         idx = np.argmax(evals.real)
         r_hat = np.real(evals[idx])
+
+        logger.info(f"Spectral radius of A: {r_hat}")
+
 
         if self.settings["init_prices"] == "values":
             self.b = self.consumption_frequencies
