@@ -198,6 +198,9 @@ class Aggregator:
                 if label == "employment":
                     self.current_employment = dic["total"]
 
+                if label == "societal_busyness":
+                    self.overall_busyness = dic["value"]
+
                 if label == "fic":
                     self.fic = dic["value"]
 
@@ -344,11 +347,9 @@ class Aggregator:
 
                 if label == "busyness":
                     firm_busyness = dic["firm_busyness"]
-                    overall_busyness = dic["societal_busyness"]
                     transfers_available = dic["max_workers_for_transfer"]
                     self.producers[id]["recent_busyness"] = firm_busyness
                     self.overall_busyness_data.append(firm_busyness)
-                    self.overall_busyness = overall_busyness
 
                 if label == "accepted_order":
                     prod_id = dic["product_id"]
@@ -454,11 +455,9 @@ class Aggregator:
 
                 if label == "busyness":
                     firm_busyness = dic["firm_busyness"]
-                    overall_busyness = dic["societal_busyness"]
                     dist_id = self._get_dist_key(id)
                     self.distributors[dist_id]["recent_busyness"] = firm_busyness
                     self.overall_busyness_data.append(firm_busyness)
-                    self.overall_busyness = overall_busyness
 
                 if label == "transfer":
                     old_emp = dic["old_workplace_id"]

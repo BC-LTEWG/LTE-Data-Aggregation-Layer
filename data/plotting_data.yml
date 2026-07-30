@@ -918,4 +918,4 @@ problems:
   grid_visible: true
   ticks_visible: true
   frame_visible: true
-  default_lims: [[2281.12, 6991.02], [-7.32378, 64.2901]]
+  default_lims: [[-35.9053, 2280.89], [-5.44685, 21.1802]]
