@@ -32,7 +32,7 @@ prices:
       linewidth: 1.5
       markersize: 6.0
       label_template: Price of Consumer Product {i}
-      colors: [red, blue, green, purple, orange]
+      colors: ['#ff4c4c', '#4e2fff', '#488045', '#803e63', '#ffc76c']
       traj_key: consumption_goods_prices
     c_goods_values:
       checkbox_name: C Goods Values
@@ -41,7 +41,7 @@ prices:
       linewidth: 1.5
       markersize: 6.0
       label_template: Price of Consumer Product {i}
-      colors: [red, blue, green, purple, orange]
+      colors: ['#ff4c4c', '#4e2fff', '#488045', '#803e63', '#ffc76c']
       traj_key: consumption_goods_values
     machine_prices:
       checkbox_name: Machine Prices
@@ -50,7 +50,7 @@ prices:
       linewidth: 1.5
       markersize: 6.0
       label_template: Price of Machine {i}
-      colors: ['']
+      colors: ['#0ffbff', '#1eff2d', '#df03db']
       traj_key: machine_prices
     machine_values:
       checkbox_name: Machine Values
@@ -59,7 +59,7 @@ prices:
       linewidth: 1.5
       markersize: 6.0
       label_template: Value of Machine {i}
-      colors: ['']
+      colors: ['#0ffbff', '#1eff2d', '#df03db']
       traj_key: machine_values
     living_labor_values:
       checkbox_name: Living Labor Values
@@ -223,6 +223,42 @@ demand:
       label_template: Pending Inventory for Machine {i}
       colors: [red, blue, green, purple, orange]
       traj_key: average_machine_pending_inventory
+    resupply_rate_goods:
+      checkbox_name: Resupply Rate Goods
+      toggled: false
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Resupply Rate {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: resupply_rates_goods
+    resupply_rate_machines:
+      checkbox_name: Resupply Rate Machines
+      toggled: false
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Resupply Rate Machine {i}
+      colors: ['', '', '']
+      traj_key: resupply_rates_machines
+    resupply_deficits_goods:
+      checkbox_name: Resupply Deficits Goods
+      toggled: false
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Resupply Deficit Good {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: resupply_deficits_goods
+    resupply_deficits_c_goods:
+      checkbox_name: Resupply Deficits C Goods
+      toggled: false
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Resupply Deficit C Good {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: resupply_deficits_c_goods
   default_lims: [[63.5485, 4851.18], [-2476.07, 5858.99]]
 wealth:
   name: Wealth
@@ -312,7 +348,7 @@ plans:
       linewidth: 1.5
       markersize: 6.0
       label_template: Plans in Progress for {i}
-      colors: [red, blue, green, purple, orange]
+      colors: ['#ff4c4c', '#4e2fff', '#488045', '#803e63', '#ffc76c']
       traj_key: plans_in_progress_c_goods
     plans_in_progress_machines:
       checkbox_name: Plans in Progress (Machines)
@@ -321,7 +357,7 @@ plans:
       linewidth: 1.5
       markersize: 6.0
       label_template: Plans in Progress for {i}
-      colors: [red, blue, green, purple, orange]
+      colors: ['#0ffbff', '#1eff2d', '#df03db']
       traj_key: plans_in_progress_machines
     quantities_in_production_goods:
       checkbox_name: Quantities in Production (Goods)
@@ -339,7 +375,7 @@ plans:
       linewidth: 1.5
       markersize: 6.0
       label_template: Amount of {i} in production
-      colors: [red, blue, green, purple, orange]
+      colors: ['#ff4c4c', '#4e2fff', '#488045', '#803e63', '#ffc76c']
       traj_key: goods_in_production_c_goods
     quantities_in_production_machines:
       checkbox_name: Quantities in Production (Machines)
@@ -348,7 +384,7 @@ plans:
       linewidth: 1.5
       markersize: 6.0
       label_template: Amount of {i} in production
-      colors: [red, blue, green, purple, orange]
+      colors: ['#0ffbff', '#1eff2d', '#df03db']
       traj_key: goods_in_production_machines
     reorder_attempts_goods:
       checkbox_name: Reorder Attempts (Goods)
@@ -366,7 +402,7 @@ plans:
       linewidth: 1.5
       markersize: 6.0
       label_template: Reorders Requests for C{i}
-      colors: [red, blue, green, purple, orange]
+      colors: ['#ff4c4c', '#4e2fff', '#488045', '#803e63', '#ffc76c']
       traj_key: reorder_requests_c_goods
     reorder_attempts_machines:
       checkbox_name: Reorder Attempts (Machines)
@@ -375,35 +411,62 @@ plans:
       linewidth: 1.5
       markersize: 6.0
       label_template: Reorders Placed for Machine {i}
-      colors: [red, blue, green, purple, orange]
+      colors: ['#0ffbff', '#1eff2d', '#df03db']
       traj_key: reorder_requests_machines
-    reorder_failures_goods:
-      checkbox_name: Reorder Failures (Goods)
+    reorder_failures_goods_workers:
+      checkbox_name: Reorder Failures (Goods, Workers)
+      toggled: false
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Hourly Reorder Failure Good {i} (Worker Shortage)
+      colors: [red, blue, green, purple, orange]
+      traj_key: hrly_reorder_failure_goods_workers
+    reorder_failures_c_goods_workers:
+      checkbox_name: Reorder Failures (C Goods, Workers)
+      toggled: false
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Reorder Failures C Good {i} (Worker Shortage)
+      colors: ['#ff4c4c', '#4e2fff', '#488045', '#803e63', '#ffc76c']
+      traj_key: hrly_reorder_failure_c_goods_workers
+    reorder_failures_machines_workers:
+      checkbox_name: Reorder Failures (Machines, Workers)
+      toggled: false
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Hourly Reorder Failure Machine {i} (Worker Shortage)
+      colors: ['#0ffbff', '#1eff2d', '#df03db']
+      traj_key: hrly_reorder_failure_machines_workers
+    reorder_failures_goods_supplies:
+      checkbox_name: Reorder Failures (Goods, Supplies)
       toggled: false
       linestyle: dashed
       linewidth: 1.5
       markersize: 6.0
-      label_template: Hourly Reorder Failure Good {i}
+      label_template: Hourly Reorder Failure Good {i} (Supply Shortage)
       colors: [red, blue, green, purple, orange]
-      traj_key: hrly_reorder_failure_goods
-    reorder_failures_c_goods:
-      checkbox_name: Reorder Failures (C Goods)
-      toggled: false
-      linestyle: dotted
-      linewidth: 1.5
-      markersize: 6.0
-      label_template: Reorder Failures Consumer Good {i}
-      colors: [red, blue, green, purple, orange]
-      traj_key: hrly_reorder_failure_c_goods
-    reorder_failures_machines:
-      checkbox_name: Reorder Failures (Machines)
+      traj_key: hrly_reorder_failure_goods_resources
+    reorder_failures_c_goods_supplies:
+      checkbox_name: Reorder Failures (C Goods, Supplies)
       toggled: false
       linestyle: dashed
       linewidth: 1.5
       markersize: 6.0
-      label_template: Hourly Reorder Failure Machine {i}
-      colors: [red, blue, green, purple, orange]
-      traj_key: hrly_reorder_failure_machines
+      label_template: Reorder Failures C Good {i} (Supply Shortage)
+      colors: ['#ff4c4c', '#4e2fff', '#488045', '#803e63', '#ffc76c']
+      traj_key: hrly_reorder_failure_c_goods_resources
+    reorder_failures_machines_supplies:
+      checkbox_name: Reorder Failures (Machines, Supplies)
+      toggled: false
+      linestyle: dashed
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Hourly Reorder Failure Machine {i} (Supply Shortage)
+      colors: ['#0ffbff', '#1eff2d', '#df03db']
+      traj_key: hrly_reorder_failure_machines_resources
   default_lims: [[9.6658, 6078.53], [-1.13537, 21.484]]
 activity:
   name: Activity
@@ -499,7 +562,7 @@ employment:
       traj_key: employment
     sectoral_employment:
       checkbox_name: Sectoral Employment
-      toggled: false
+      toggled: true
       linestyle: solid
       linewidth: 1.5
       markersize: 6.0
@@ -518,7 +581,7 @@ employment:
       traj_key_x: transfer_requests_by_sector_t
     long_run_sectoral_employment:
       checkbox_name: Long-Run Sectoral Employment
-      toggled: true
+      toggled: false
       linestyle: dashed
       linewidth: 1.5
       markersize: 6.0
@@ -668,6 +731,7 @@ plan_details:
       label_template: Order Size for Good {i}
       colors: [red, blue, green, purple, orange]
       traj_key: order_sizes_goods
+      traj_key_x: week_counter
     c_goods_order_sizes:
       checkbox_name: C Goods Order Sizes
       toggled: false
@@ -677,6 +741,7 @@ plan_details:
       label_template: Order Size for C Good {i}
       colors: ['#ff4c4c', '#4e2fff', '#488045', '#803e63', '#ffc76c']
       traj_key: order_sizes_c_goods
+      traj_key_x: week_counter
     machine_order_sizes:
       checkbox_name: Machine Order Sizes
       toggled: true
@@ -686,6 +751,7 @@ plan_details:
       label_template: Order Size of Machine {i}
       colors: ['#0ffbff', '#1eff2d', '#df03db']
       traj_key: order_sizes_machines
+      traj_key_x: week_counter
     goods_lead_times:
       checkbox_name: Goods Lead Times
       toggled: true
@@ -695,6 +761,7 @@ plan_details:
       label_template: Lead Times for Good {i}
       colors: [red, blue, green, purple, orange]
       traj_key: lead_times_goods
+      traj_key_x: week_counter
     c_goods_lead_times:
       checkbox_name: C Goods Lead Times
       toggled: false
@@ -704,6 +771,7 @@ plan_details:
       label_template: Lead Times for C Good {i}
       colors: ['#ff4c4c', '#4e2fff', '#488045', '#803e63', '#ffc76c']
       traj_key: lead_times_c_goods
+      traj_key_x: week_counter
     machine_lead_times:
       checkbox_name: Machine Lead Times
       toggled: true
@@ -713,6 +781,7 @@ plan_details:
       label_template: Lead Times for Machine {i}
       colors: ['#0ffbff', '#1eff2d', '#df03db']
       traj_key: lead_times_machines
+      traj_key_x: week_counter
     goods_team_sizes:
       checkbox_name: Goods Team Sizes
       toggled: true
@@ -722,6 +791,7 @@ plan_details:
       label_template: Team Size for Good {i}
       colors: [red, blue, green, purple, orange]
       traj_key: team_sizes_goods
+      traj_key_x: week_counter
     c_goods_team_sizes:
       checkbox_name: C Goods Team Sizes
       toggled: false
@@ -731,6 +801,7 @@ plan_details:
       label_template: Team Size for C Good {i}
       colors: ['#ff4c4c', '#4e2fff', '#488045', '#803e63', '#ffc76c']
       traj_key: team_sizes_c_goods
+      traj_key_x: week_counter
     machine_team_sizes:
       checkbox_name: Machine Team Sizes
       toggled: true
@@ -740,6 +811,7 @@ plan_details:
       label_template: Team Size of Machine {i}
       colors: ['#0ffbff', '#1eff2d', '#df03db']
       traj_key: team_sizes_machines
+      traj_key_x: week_counter
   projection: 2d
   axis_visible: true
   grid_visible: true
@@ -792,3 +864,58 @@ public_sector:
   ticks_visible: true
   frame_visible: true
   default_lims: [[142.249, 5679.75], [-3234.89, 1223.0]]
+problems:
+  name: Problems
+  tooltip: null
+  plots:
+    stalled_plans_goods:
+      checkbox_name: Stalled Plans (Goods)
+      toggled: true
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Plans Stalled in Production For Good {i}
+      colors: [red, blue, green, purple, orange]
+      traj_key: stalled_plans_goods
+    stalled_plans_c_goods:
+      checkbox_name: Stalled Plans (C Goods)
+      toggled: true
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Plans Stalled in Production For C Good {i}
+      colors: ['#ff4c4c', '#4e2fff', '#488045', '#803e63', '#ffc76c']
+      traj_key: stalled_plans_c_goods
+    stalled_plans_machines:
+      checkbox_name: Stalled Plans (Machines)
+      toggled: true
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Plans Stalled in Production For Machine {i}
+      colors: ['#0ffbff', '#1eff2d', '#df03db']
+      traj_key: stalled_plans_machines
+    start_plan_failure_goods:
+      checkbox_name: Start Plan Failure (Goods)
+      toggled: false
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Plan Start Failure (Insufficient Good {i})
+      colors: [red, blue, green, purple, orange]
+      traj_key: start_plan_failures_goods
+    start_plan_failure_machines:
+      checkbox_name: Start Plan Failure (Machines)
+      toggled: false
+      linestyle: solid
+      linewidth: 1.5
+      markersize: 6.0
+      label_template: Plan Start Failure (Insufficient Machine {i})
+      colors: ['#0ffbff', '#1eff2d', '#df03db']
+      traj_key: start_plan_failures_machines
+  projection: 2d
+  axis_visible: true
+  grid_visible: true
+  ticks_visible: true
+  frame_visible: true
+  default_lims: [[-35.9053, 2280.89], [-5.44685, 21.1802]]
