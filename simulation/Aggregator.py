@@ -851,10 +851,13 @@ class Aggregator:
         overall_sectoral_activity_levels.extend(machines_min_hrly_output)
         overall_sectoral_activity_levels = np.asarray(overall_sectoral_activity_levels)
 
+        init_work_hours = self.settings["init_working_day"]
+        init_work_days = self.settings["init_working_week"]
+
         self.predicted_order_sizes = 0.25 * 1.5 * 24*7 * min_hrly_output
-        self.eqb_employment = overall_sectoral_weekly_labor_req / (8*5)
-        self.busy_lower_bd = self.settings["consump_epsilon"]*(8*5 / (24*7))
-        self.busy_upper_bd = (8*5 / (24*7))
+        self.eqb_employment = overall_sectoral_weekly_labor_req / (init_work_hours*init_work_days)
+        self.busy_lower_bd = self.settings["consump_epsilon"]*(init_work_hours*init_work_days / (24*7))
+        self.busy_upper_bd = (init_work_hours*init_work_days / (24*7))
         self.min_hrly_output = overall_sectoral_activity_levels
         dim = self.A.shape[0]
         self.values = inv(np.eye(dim) - self.A.T)@self.l
