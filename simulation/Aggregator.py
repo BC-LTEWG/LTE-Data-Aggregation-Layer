@@ -5,6 +5,7 @@ from copy import deepcopy
 from .Collector import Collector
 from typing import Tuple
 from scipy.linalg import inv, eig
+from scipy.stats import norm
 from pathlib import Path
 import math
 import copy
@@ -138,6 +139,13 @@ class Aggregator:
         self.resupply_rates = [[] for _ in range(self.settings["n_products"])]
         self.resupply_deficits = [[] for _ in range(self.settings["n_products"])]
 
+        self.work_hours_update_this_step = False
+        self.censored_busyness_mean = None
+        self.uncensored_busyness_mean = None
+        self.censored_busyness_stddev = None
+        self.uncensored_busyness_stddev = None
+        self.individual_busyness_data = []
+
         self.stalled_plans = {i: set() for i in range(self.settings["n_products"])}
         self.start_plan_stalls = {} 
 
@@ -222,6 +230,26 @@ class Aggregator:
                 if label == "work_hours_weekly":
                     self.weekly_working_hours = dic["work_hours_daily"] * dic["work_days_weekly"]
                     self.busy_upper_bd = self.weekly_working_hours / 24 / 7
+
+                if label == "censored_busyness_distribution":
+                    self.work_hours_update_this_step = True
+                    self.censored_busyness_mean = dic["mean"]
+                    self.censored_busyness_stddev = dic["stddev"]
+                    logger.info(f"Received censored busyness update: mean = {self.censored_busyness_mean}, stddev = {self.censored_busyness_stddev}")
+
+                if label == "predicted_uncensored_busyness_distribution":
+                    self.work_hours_update_this_step = True
+                    self.uncensored_busyness_mean = dic["mean"]
+                    self.uncensored_busyness_stddev = dic["stddev"]
+
+                if label == "work_hours_weekly":
+                    self.work_hours_update_this_step = True
+                    work_hours_daily = dic["work_hours_daily"]
+                    work_days_weekly = dic["work_days_weekly"]
+                    self.busy_upper_bd = (work_hours_daily * work_days_weekly) / (24*7)
+
+                if label == "busyness_data":
+                    self.individual_busyness_data.append(dic["value"])
 
             case "Person":
                 if label == "age":
@@ -320,7 +348,7 @@ class Aggregator:
 
                 if label == "reorder_failure":
                     prod_id = dic["product_id"]
-                    reason = dic["reason"]
+                    reason = dic.get("reason")
                     if reason == "insufficient_resources":
                         self.reorder_failures_resources[prod_id] += 1
                     elif reason == "no_workers_available":
@@ -439,7 +467,7 @@ class Aggregator:
 
                 if label == "reorder_failure":
                     prod_id = dic["product_id"]
-                    reason = dic["reason"]
+                    reason = dic.get("reason")
                     if reason == "insufficient_resources":
                         self.reorder_failures_resources[prod_id] += 1
                     elif reason == "no_workers_available":
@@ -819,6 +847,35 @@ class Aggregator:
         for dataset in (self.order_sizes, self.lead_times, self.team_sizes):
             for ls in dataset:
                 ls.clear()
+
+        if not self.work_hours_update_this_step:
+            return 
+
+        busyness_data = copy.deepcopy(np.array(self.individual_busyness_data))
+        lb = np.min(busyness_data)
+        ub = np.max(busyness_data)
+        x_sample = np.linspace(lb, ub, 400)
+        self.traj["busyness_dist_support"] = Replace(x_sample)
+        if self.censored_busyness_mean is not None:
+            logger.info(f"{self.censored_busyness_mean=}, {self.censored_busyness_stddev=}")
+            dist = norm(
+                loc= self.censored_busyness_mean,
+                scale= self.censored_busyness_stddev
+            )
+            self.traj["censored_busyness_dist"] = Replace(dist.pdf(x_sample))
+        if self.uncensored_busyness_mean is not None:
+            logger.info(f"{self.uncensored_busyness_mean=}, {self.uncensored_busyness_stddev=}")
+            dist = norm(
+                loc= self.uncensored_busyness_mean,
+                scale= self.uncensored_busyness_stddev
+            )
+            self.traj["uncensored_busyness_dist"] = Replace(dist.pdf(x_sample))
+
+        logger.info(f"{busyness_data=}")
+        self.traj["individual_busyness_data"] = Replace(busyness_data)
+        self.traj["individual_busyness_data_bins"] = np.histogram_bin_edges(busyness_data, bins= "auto")
+        self.individual_busyness_data.clear()
+        self.work_hours_update_this_step = False
 
     def initialize_properties(self):
         N = self.settings["n_persons"]

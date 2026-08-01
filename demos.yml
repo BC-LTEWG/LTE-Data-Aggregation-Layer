@@ -7,15 +7,24 @@ demos:
       default_preset: default_preset
       axis_settings:
         limits:
-          a1: [[-14.4603, 11850.9], [-1.64919, 5.29796]]
-        dimension: [1, 1]
-        dropdown_indices: [0]
+          a1: [[-34.6118, 27984.9], [-0.0651938, 0.436073]]
+          a2: [[0.00498251, 0.263608], [-0.260721, 17.8723]]
+        dimension: [1, 2]
+        dropdown_indices: [11, 15]
         checked_plots:
-          a1: [Goods Prices]
+          a1: [Overall Busyness, Min Reproductive Busyness, Max Reproductive Busyness]
+          a2: [Censored Busyness Dist, Uncensored Busyness Dist]
         settings:
           a1:
             legend_visible: true
             legend_fontsize: 10
+            legend_loc: upper right
+            title: true
+            xlabel: true
+            ylabel: true
+          a2:
+            legend_visible: true
+            legend_fontsize: 8
             legend_loc: upper right
             title: true
             xlabel: true
